@@ -1,24 +1,1840 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AiMetaverse | Constellation25 Sovereign Build</title>
-    <style>
-        body { font-family: 'Courier New', monospace; background: #0d0d0d; color: #00ff00; text-align: center; padding: 40px; margin: 0; }
-        h1 { text-shadow: 0 0 10px #00ff00; font-size: 2.5rem; margin-bottom: 10px; }
-        p { font-size: 1.2rem; color: #ccc; }
-        .badge { background: #003300; border: 1px solid #00ff00; padding: 10px 20px; border-radius: 5px; display: inline-block; margin-top: 20px; font-weight: bold; }
-        a { color: #00ff00; text-decoration: none; border-bottom: 1px dashed #00ff00; }
-        footer { margin-top: 50px; font-size: 0.8rem; opacity: 0.6; }
-    </style>
+<meta charset="utf-8" />
+<meta content="width=device-width, initial-scale=1" name="viewport" />
+<title>AI Metaverse // Spatial Command Interface v4.2</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/orbitron@5.0.18/index.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/share-tech-mono@5.0.18/index.min.css" rel="stylesheet" />
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; overflow-x: hidden; }
+  body {
+    font-family: 'Share Tech Mono', monospace;
+    background: #000;
+    color: #7ff8ff;
+    cursor: crosshair;
+  }
+  h1, h2, h3, .orbitron { font-family: 'Orbitron', sans-serif; letter-spacing: 0.05em; }
+  #space-canvas {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    z-index: 0;
+  }
+  .hud-layer { position: relative; z-index: 10; pointer-events: auto; }
+  .hud-layer * { pointer-events: auto; }
+
+  .scanlines::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg, rgba(0, 255, 255, 0.03) 0px, rgba(0, 255, 255, 0.03) 1px, transparent 1px, transparent 3px);
+    pointer-events: none;
+    z-index: 100;
+  }
+  .vignette::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.85) 100%);
+    pointer-events: none;
+    z-index: 99;
+  }
+
+  .hud-frame {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    border: 1px solid rgba(127, 248, 255, 0.2);
+    box-shadow: inset 0 0 100px rgba(0, 255, 255, 0.1);
+  }
+  .hud-corner { position: absolute; width: 40px; height: 40px; border: 2px solid #7ff8ff; }
+  .hud-corner.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+  .hud-corner.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+  .hud-corner.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+  .hud-corner.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+  .status-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 32px;
+    background: linear-gradient(180deg, rgba(0,20,30,0.9), rgba(0,10,20,0.7));
+    border-bottom: 1px solid rgba(127, 248, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 11px;
+    z-index: 60;
+    backdrop-filter: blur(10px);
+  }
+  .status-bar .status-item { display: flex; align-items: center; gap: 8px; }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #00ff88;
+    box-shadow: 0 0 10px #00ff88;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .bottom-hud {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 40px;
+    background: linear-gradient(0deg, rgba(0,20,30,0.9), rgba(0,10,20,0.7));
+    border-top: 1px solid rgba(127, 248, 255, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 11px;
+    z-index: 60;
+    backdrop-filter: blur(10px);
+  }
+
+  .holo-card {
+    position: relative;
+    background: linear-gradient(135deg, rgba(0, 40, 60, 0.4), rgba(0, 20, 40, 0.6));
+    border: 1px solid rgba(127, 248, 255, 0.4);
+    backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .holo-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(127, 248, 255, 0.1) 50%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+  }
+  .holo-card:hover::before { transform: translateX(100%); }
+  .holo-card:hover {
+    border-color: #7ff8ff;
+    box-shadow: 0 0 30px rgba(127, 248, 255, 0.5), inset 0 0 20px rgba(127, 248, 255, 0.1);
+    transform: translateY(-4px) scale(1.02);
+  }
+  .holo-card .corner { position: absolute; width: 12px; height: 12px; border: 1px solid #7ff8ff; }
+  .holo-card .corner.tl { top: 4px; left: 4px; border-right: none; border-bottom: none; }
+  .holo-card .corner.tr { top: 4px; right: 4px; border-left: none; border-bottom: none; }
+  .holo-card .corner.bl { bottom: 4px; left: 4px; border-right: none; border-top: none; }
+  .holo-card .corner.br { bottom: 4px; right: 4px; border-left: none; border-top: none; }
+
+  .btn-hud {
+    position: relative;
+    background: linear-gradient(135deg, rgba(0, 255, 255, 0.15), rgba(0, 200, 255, 0.05));
+    border: 1px solid #7ff8ff;
+    color: #7ff8ff;
+    padding: 10px 24px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  }
+  .btn-hud:hover { background: rgba(127, 248, 255, 0.3); box-shadow: 0 0 20px rgba(127, 248, 255, 0.6); color: #fff; }
+  .btn-hud:active { transform: scale(0.97); }
+
+  .btn-danger { border-color: #ff3366; color: #ff3366; background: linear-gradient(135deg, rgba(255, 51, 102, 0.15), rgba(255, 51, 102, 0.05)); }
+  .btn-danger:hover { background: rgba(255, 51, 102, 0.3); box-shadow: 0 0 20px rgba(255, 51, 102, 0.6); color: #fff; }
+
+  .btn-success { border-color: #00ff88; color: #00ff88; background: linear-gradient(135deg, rgba(0, 255, 136, 0.15), rgba(0, 255, 136, 0.05)); }
+  .btn-success:hover { background: rgba(0, 255, 136, 0.3); box-shadow: 0 0 20px rgba(0, 255, 136, 0.6); color: #fff; }
+
+  .btn-purple { border-color: #b565ff; color: #b565ff; background: linear-gradient(135deg, rgba(181, 101, 255, 0.15), rgba(181, 101, 255, 0.05)); }
+  .btn-purple:hover { background: rgba(181, 101, 255, 0.3); box-shadow: 0 0 20px rgba(181, 101, 255, 0.6); color: #fff; }
+
+  .btn-yellow { border-color: #ffd700; color: #ffd700; background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05)); }
+  .btn-yellow:hover { background: rgba(255, 215, 0, 0.3); box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); color: #fff; }
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 10, 20, 0.85);
+    backdrop-filter: blur(20px);
+    z-index: 200;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; animation: fadeIn 0.3s; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .modal-panel {
+    background: linear-gradient(135deg, rgba(0, 30, 50, 0.95), rgba(0, 15, 30, 0.95));
+    border: 1px solid rgba(127, 248, 255, 0.5);
+    box-shadow: 0 0 60px rgba(127, 248, 255, 0.3), inset 0 0 40px rgba(0, 255, 255, 0.05);
+    max-width: 1200px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  @keyframes slideUp { from { transform: translateY(40px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
+  .modal-header {
+    position: sticky;
+    top: 0;
+    background: linear-gradient(180deg, rgba(0, 30, 50, 0.98), rgba(0, 20, 40, 0.95));
+    border-bottom: 1px solid rgba(127, 248, 255, 0.3);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+  }
+  .modal-body { padding: 24px; }
+  .modal-close {
+    background: transparent;
+    border: 1px solid #ff3366;
+    color: #ff3366;
+    width: 32px; height: 32px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .modal-close:hover { background: #ff3366; color: #000; box-shadow: 0 0 15px #ff3366; }
+
+  .hud-input, .hud-textarea {
+    background: rgba(0, 20, 40, 0.6);
+    border: 1px solid rgba(127, 248, 255, 0.3);
+    color: #7ff8ff;
+    padding: 10px 14px;
+    font-family: 'Share Tech Mono', monospace;
+    width: 100%;
+    transition: all 0.3s;
+  }
+  .hud-input:focus, .hud-textarea:focus { outline: none; border-color: #7ff8ff; box-shadow: 0 0 15px rgba(127, 248, 255, 0.3); background: rgba(0, 30, 50, 0.8); }
+  .hud-input::placeholder, .hud-textarea::placeholder { color: rgba(127, 248, 255, 0.4); }
+
+  .tab-btn {
+    background: transparent;
+    border: 1px solid rgba(127, 248, 255, 0.2);
+    color: #7ff8ff;
+    padding: 8px 16px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .tab-btn.active { background: rgba(127, 248, 255, 0.2); border-color: #7ff8ff; box-shadow: 0 0 10px rgba(127, 248, 255, 0.4); }
+  .tab-btn:hover:not(.active) { border-color: #7ff8ff; background: rgba(127, 248, 255, 0.05); }
+
+  .progress-bar { height: 4px; background: rgba(127, 248, 255, 0.1); overflow: hidden; position: relative; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #7ff8ff, #00ff88); box-shadow: 0 0 10px #7ff8ff; transition: width 0.5s; }
+
+  .notification {
+    position: fixed;
+    top: 50px; right: 20px;
+    background: linear-gradient(135deg, rgba(0, 40, 60, 0.95), rgba(0, 20, 40, 0.95));
+    border: 1px solid #00ff88;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+    padding: 16px 20px;
+    z-index: 300;
+    max-width: 400px;
+    animation: slideIn 0.4s;
+  }
+  @keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+
+  .typing::after { content: '▊'; animation: blink 1s infinite; color: #7ff8ff; }
+  @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: rgba(0, 20, 40, 0.3); }
+  ::-webkit-scrollbar-thumb { background: rgba(127, 248, 255, 0.4); }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(127, 248, 255, 0.7); }
+
+  .planet-card {
+    position: relative;
+    height: 240px;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(127, 248, 255, 0.3);
+    transition: all 0.4s;
+    cursor: pointer;
+  }
+  .planet-card:hover { border-color: #7ff8ff; box-shadow: 0 0 40px rgba(127, 248, 255, 0.5); transform: scale(1.03); }
+  .planet-card .planet-bg { position: absolute; inset: 0; background-size: cover; background-position: center; transition: transform 0.6s; }
+  .planet-card:hover .planet-bg { transform: scale(1.1); }
+  .planet-card .overlay { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 30%, rgba(0, 10, 20, 0.95) 100%); }
+  .planet-card .content { position: absolute; bottom: 0; left: 0; right: 0; padding: 16px; }
+
+  .section-header { position: relative; padding-bottom: 12px; margin-bottom: 20px; }
+  .section-header::after { content: ''; position: absolute; bottom: 0; left: 0; width: 60px; height: 2px; background: linear-gradient(90deg, #7ff8ff, transparent); }
+
+  .loading-bar { position: relative; height: 2px; background: rgba(127, 248, 255, 0.1); overflow: hidden; }
+  .loading-bar::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, #7ff8ff, transparent); animation: loading 1.5s infinite; }
+  @keyframes loading { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+  .hud-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 0; }
+  .hud-checkbox input { display: none; }
+  .hud-checkbox .box { width: 18px; height: 18px; border: 1px solid #7ff8ff; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+  .hud-checkbox input:checked + .box { background: rgba(127, 248, 255, 0.3); box-shadow: 0 0 10px rgba(127, 248, 255, 0.5); }
+  .hud-checkbox input:checked + .box::after { content: '✓'; color: #7ff8ff; font-size: 12px; }
+
+  .console-log {
+    background: rgba(0, 10, 20, 0.8);
+    border: 1px solid rgba(127, 248, 255, 0.2);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    padding: 12px;
+    max-height: 240px;
+    overflow-y: auto;
+    line-height: 1.6;
+  }
+  .console-log .line { margin-bottom: 4px; }
+  .console-log .ok { color: #00ff88; }
+  .console-log .warn { color: #ffd700; }
+  .console-log .err { color: #ff3366; }
+  .console-log .info { color: #7ff8ff; }
+
+  .crosshair { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 30px; height: 30px; pointer-events: none; z-index: 98; opacity: 0.3; }
+  .crosshair::before, .crosshair::after { content: ''; position: absolute; background: #7ff8ff; }
+  .crosshair::before { top: 50%; left: 0; right: 0; height: 1px; transform: translateY(-50%); }
+  .crosshair::after { left: 50%; top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
+
+  .flicker { animation: flicker 3s infinite; }
+  @keyframes flicker { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } 52% { opacity: 1; } 54% { opacity: 0.7; } 56% { opacity: 1; } }
+
+  @media (max-width: 768px) {
+    .status-bar, .bottom-hud { font-size: 9px; padding: 0 10px; }
+    .status-bar .hide-mobile, .bottom-hud .hide-mobile { display: none; }
+  }
+</style>
 </head>
-<body>
-    <h1>⚡ AiMetaverse</h1>
-    <p>Sovereign Build Deployed via Constellation25 Agents</p>
-    <div class="badge">Powered by Banani AI & CyGeL</div>
-    <br><br>
-    <a href="#">Access Application Interface</a>
-    <footer>© 2024 CyGeL White • FacePrintPay Ecosystem • Localhost Sovereignty</footer>
+<body class="scanlines vignette">
+
+<canvas id="space-canvas"></canvas>
+
+<div class="hud-frame">
+  <div class="hud-corner tl"></div>
+  <div class="hud-corner tr"></div>
+  <div class="hud-corner bl"></div>
+  <div class="hud-corner br"></div>
+</div>
+
+<div class="status-bar">
+  <div class="status-item">
+    <span class="status-dot"></span>
+    <span class="orbitron text-xs">AI-METAVERSE // ONLINE</span>
+  </div>
+  <div class="status-item hide-mobile">
+    <span>SECTOR: <span class="text-green-400">SOL-3</span></span>
+    <span class="mx-2">|</span>
+    <span>COORD: <span id="coord-display">0.00, 0.00, 0.00</span></span>
+  </div>
+  <div class="status-item">
+    <span>UPLINK: <span class="text-green-400">98.7%</span></span>
+    <span class="mx-2 hide-mobile">|</span>
+    <span class="hide-mobile" id="clock">00:00:00</span>
+  </div>
+</div>
+
+<div class="bottom-hud">
+  <div class="flex items-center gap-4">
+    <span><i class="fas fa-shield-alt text-green-400"></i> SHIELDS: <span class="text-green-400">100%</span></span>
+    <span class="hide-mobile"><i class="fas fa-bolt text-yellow-400"></i> POWER: <span class="text-yellow-400">87%</span></span>
+  </div>
+  <div class="flex items-center gap-4">
+    <span class="hide-mobile">AGENTS: <span class="text-cyan-400">12/12 ACTIVE</span></span>
+    <span>LAT: <span id="lat-display">12ms</span></span>
+  </div>
+</div>
+
+<div class="crosshair"></div>
+
+<main class="hud-layer min-h-screen pt-16 pb-16 px-4 md:px-8">
+
+  <!-- HERO -->
+  <section class="max-w-7xl mx-auto py-12">
+    <div class="text-center mb-12">
+      <div class="inline-block mb-4 px-4 py-1 border border-cyan-400/40 text-xs orbitron tracking-widest">
+        <span class="text-cyan-400">◆</span> SPATIAL COMMAND INTERFACE v4.2 <span class="text-cyan-400">◆</span>
+      </div>
+      <h1 class="text-4xl md:text-6xl lg:text-7xl font-bold mb-4 flicker">
+        <span class="text-cyan-300">AI</span> <span class="text-white">METAVERSE</span>
+      </h1>
+      <p class="text-cyan-200/70 text-lg max-w-3xl mx-auto mb-2">
+        PLANETARY AGENT NETWORK // SPATIAL COMMAND // HOLOGRAPHIC INTERFACE
+      </p>
+      <p class="text-cyan-200/50 text-sm max-w-2xl mx-auto typing" id="hero-typing">
+        INITIALIZING NEURAL LINK
+      </p>
+    </div>
+
+    <!-- PRIMARY MODULE CARDS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div class="holo-card p-5" onclick="openModal('trial-modal')">
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        <div class="flex items-center gap-3 mb-3">
+          <i class="fas fa-rocket text-2xl text-green-400"></i>
+          <span class="orbitron text-xs text-green-400">MODULE 01</span>
+        </div>
+        <h3 class="text-lg font-bold mb-2 text-white">FREE TRIAL</h3>
+        <p class="text-xs text-cyan-200/60 mb-3">Initialize your neural link and access all systems.</p>
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-green-400">► ENGAGE</span>
+          <i class="fas fa-arrow-right text-green-400"></i>
+        </div>
+      </div>
+
+      <div class="holo-card p-5" onclick="openModal('prompt-modal')">
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        <div class="flex items-center gap-3 mb-3">
+          <i class="fas fa-terminal text-2xl text-cyan-400"></i>
+          <span class="orbitron text-xs text-cyan-400">MODULE 02</span>
+        </div>
+        <h3 class="text-lg font-bold mb-2 text-white">PROMPT ENGINE</h3>
+        <p class="text-xs text-cyan-200/60 mb-3">Text, Image, Video, Object generation suite.</p>
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-cyan-400">► ENGAGE</span>
+          <i class="fas fa-arrow-right text-cyan-400"></i>
+        </div>
+      </div>
+
+      <div class="holo-card p-5" onclick="openModal('versedai-modal')">
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        <div class="flex items-center gap-3 mb-3">
+          <i class="fas fa-layer-group text-2xl text-purple-400"></i>
+          <span class="orbitron text-xs text-purple-400">MODULE 03</span>
+        </div>
+        <h3 class="text-lg font-bold mb-2 text-white">VERSED'ai HUB</h3>
+        <p class="text-xs text-cyan-200/60 mb-3">AI For All — App Hub for intelligent living.</p>
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-purple-400">► ENGAGE</span>
+          <i class="fas fa-arrow-right text-purple-400"></i>
+        </div>
+      </div>
+
+      <div class="holo-card p-5" onclick="openModal('economy-modal')">
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        <div class="flex items-center gap-3 mb-3">
+          <i class="fas fa-coins text-2xl text-yellow-400"></i>
+          <span class="orbitron text-xs text-yellow-400">MODULE 04</span>
+        </div>
+        <h3 class="text-lg font-bold mb-2 text-white">DIGITAL ECONOMY</h3>
+        <p class="text-xs text-cyan-200/60 mb-3">Biometric payments, blockchain, VR commerce.</p>
+        <div class="flex items-center justify-between">
+          <span class="text-xs text-yellow-400">► ENGAGE</span>
+          <i class="fas fa-arrow-right text-yellow-400"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECONDARY MODULE CARDS -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+      <button onclick="openModal('enterprise-modal')" class="holo-card p-3 text-left">
+        <i class="fas fa-building text-cyan-400 mb-2 block"></i>
+        <div class="text-xs orbitron text-white">ENTERPRISE</div>
+      </button>
+      <button onclick="openModal('cloud-modal')" class="holo-card p-3 text-left">
+        <i class="fas fa-cloud text-cyan-400 mb-2 block"></i>
+        <div class="text-xs orbitron text-white">AI-CLOUD</div>
+      </button>
+      <button onclick="openModal('tools-modal')" class="holo-card p-3 text-left">
+        <i class="fas fa-tools text-cyan-400 mb-2 block"></i>
+        <div class="text-xs orbitron text-white">TOP TOOLS</div>
+      </button>
+      <button onclick="openModal('slamar-modal')" class="holo-card p-3 text-left">
+        <i class="fas fa-map-marked-alt text-cyan-400 mb-2 block"></i>
+        <div class="text-xs orbitron text-white">SLAMAR</div>
+      </button>
+      <button onclick="openModal('heyllogen-modal')" class="holo-card p-3 text-left">
+        <i class="fas fa-hat-wizard text-cyan-400 mb-2 block"></i>
+        <div class="text-xs orbitron text-white">HEYLL0GEN</div>
+      </button>
+      <button onclick="openModal('library-modal')" class="holo-card p-3 text-left">
+        <i class="fas fa-code-branch text-cyan-400 mb-2 block"></i>
+        <div class="text-xs orbitron text-white">CODE LIB</div>
+      </button>
+    </div>
+
+    <!-- PLANETARY AGENTS GRID -->
+    <div class="mb-8">
+      <div class="section-header">
+        <h2 class="text-2xl font-bold text-cyan-300 orbitron">PLANETARY AGENTS</h2>
+        <p class="text-xs text-cyan-200/50 mt-2">SELECT A REALM TO ENGAGE // ALL SYSTEMS OPERATIONAL</p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div class="planet-card" onclick="openModal('portal-modal')">
+          <div class="planet-bg" style="background: radial-gradient(circle at 30% 40%, #ff6b35, #8b2500 60%, #2a0800);"></div>
+          <div class="overlay"></div>
+          <div class="content">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+              <span class="text-xs orbitron text-red-400">MARS-VR</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">META-PORTAL</h3>
+            <p class="text-xs text-cyan-200/60">Mars, Earth, TwinPlanet, VerseWorlds</p>
+          </div>
+        </div>
+        <div class="planet-card" onclick="openModal('n2c-modal')">
+          <div class="planet-bg" style="background: radial-gradient(circle at 30% 40%, #ffd700, #b8860b 60%, #3d2e00);"></div>
+          <div class="overlay"></div>
+          <div class="content">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+              <span class="text-xs orbitron text-yellow-400">MERCURY-SATURN</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">NLP2CODE + PUSH2</h3>
+            <p class="text-xs text-cyan-200/60">Voice-to-code, biometric git push</p>
+          </div>
+        </div>
+        <div class="planet-card" onclick="openModal('comand-modal')">
+          <div class="planet-bg" style="background: radial-gradient(circle at 30% 40%, #4da6ff, #0066cc 60%, #001a33);"></div>
+          <div class="overlay"></div>
+          <div class="content">
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
+              <span class="text-xs orbitron text-blue-400">OBERON-JUPITER</span>
+            </div>
+            <h3 class="text-lg font-bold text-white">CoMan'd UI</h3>
+            <p class="text-xs text-cyan-200/60">Task agent launcher dashboard</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPECIAL MODULES -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+      <div class="holo-card p-6" onclick="openModal('slamar-modal')">
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        <div class="flex items-center gap-3 mb-3">
+          <i class="fas fa-map-marked-alt text-3xl text-cyan-400"></i>
+          <div>
+            <div class="orbitron text-xs text-cyan-400">SPATIAL AI</div>
+            <h3 class="text-xl font-bold text-white">SLAMAR</h3>
+          </div>
+        </div>
+        <p class="text-xs text-cyan-200/60 mb-3">Spatial AI & AR Mapper. Full-scale spatial interaction and navigation across AR layers in the Metaverse.</p>
+        <div class="flex gap-2">
+          <button onclick="event.stopPropagation(); activateAgent('Uranus', 'SLAMAR')" class="btn-hud text-xs flex-1">URANUS</button>
+          <button onclick="event.stopPropagation(); activateAgent('Neptune', 'SLAMAR')" class="btn-hud text-xs flex-1">NEPTUNE</button>
+        </div>
+      </div>
+
+      <div class="holo-card p-6" onclick="openModal('heyllogen-modal')">
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        <div class="flex items-center gap-3 mb-3">
+          <i class="fas fa-hat-wizard text-3xl text-purple-400"></i>
+          <div>
+            <div class="orbitron text-xs text-purple-400">HOLOGRAM ENGINE</div>
+            <h3 class="text-xl font-bold text-white">HEYLL0GEN</h3>
+          </div>
+        </div>
+        <p class="text-xs text-cyan-200/60 mb-3">Hologram Knowledge Generator. Dynamic holographic models from AI libraries, syntax, and planetary instructions.</p>
+        <div class="flex gap-2">
+          <button onclick="event.stopPropagation(); activateAgent('Sedna', 'HeylloGen')" class="btn-hud btn-purple text-xs flex-1">SEDNA</button>
+          <button onclick="event.stopPropagation(); activateAgent('Ixion', 'HeylloGen')" class="btn-hud btn-purple text-xs flex-1">IXION</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="holo-card p-6">
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="orbitron text-sm text-cyan-400">◉ PLANETARY AGENT CONSOLE</h3>
+          <span class="text-xs text-green-400">● ACTIVE</span>
+        </div>
+        <div class="console-log mb-3" id="agent-console">
+          <div class="line info">[BOOT] AI Metaverse Neural Core v4.2.1</div>
+          <div class="line ok">[OK] Planetary agent network: 12/12 online</div>
+          <div class="line ok">[OK] SLAMAR spatial mapper: calibrated</div>
+          <div class="line ok">[OK] HeylloGen hologram engine: ready</div>
+          <div class="line ok">[OK] NLP2CODE compiler: linked</div>
+          <div class="line ok">[OK] CoMan'd dashboard: synced</div>
+          <div class="line warn">[WARN] Cygnus filter engine: high load</div>
+          <div class="line info">[SYS] Awaiting operator command...</div>
+        </div>
+        <div class="flex gap-2">
+          <input type="text" id="agent-input" class="hud-input text-sm flex-1" placeholder="Enter agent command..." onkeypress="if(event.key==='Enter') sendAgentCmd()"/>
+          <button onclick="sendAgentCmd()" class="btn-hud text-xs">EXEC</button>
+        </div>
+      </div>
+
+      <div class="holo-card p-6">
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="orbitron text-sm text-cyan-400">◉ SYSTEM DIAGNOSTICS</h3>
+          <span class="text-xs text-green-400">● NOMINAL</span>
+        </div>
+        <div class="space-y-3">
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span>NEURAL NETWORK</span>
+              <span class="text-green-400">98%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 98%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span>QUANTUM CORE</span>
+              <span class="text-green-400">87%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 87%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span>HOLOGRAPHIC ENGINE</span>
+              <span class="text-cyan-400">76%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 76%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span>SPATIAL MAPPING (SLAMAR)</span>
+              <span class="text-yellow-400">64%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 64%"></div></div>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1">
+              <span>CODE LIBRARY (CYNUS/PaTHos)</span>
+              <span class="text-green-400">92%</span>
+            </div>
+            <div class="progress-bar"><div class="progress-fill" style="width: 92%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ MODALS ============ -->
+
+<!-- FREE TRIAL -->
+<div class="modal-overlay" id="trial-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-green-400 mb-1">◉ MODULE 01 // ACCESS PROTOCOL</div>
+        <h2 class="text-xl font-bold text-white">INITIATE FREE TRIAL</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('trial-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid md:grid-cols-2 gap-6">
+        <div>
+          <h3 class="orbitron text-sm text-cyan-400 mb-4 section-header">BENEFITS OF NEURAL LINK</h3>
+          <ul class="space-y-3 text-sm">
+            <li class="flex items-start gap-3"><i class="fas fa-check text-green-400 mt-1"></i><span>Full access to 20,000+ AI models</span></li>
+            <li class="flex items-start gap-3"><i class="fas fa-check text-green-400 mt-1"></i><span>Unlimited text, image, video generation</span></li>
+            <li class="flex items-start gap-3"><i class="fas fa-check text-green-400 mt-1"></i><span>Access to 100+ metaverse environments</span></li>
+            <li class="flex items-start gap-3"><i class="fas fa-check text-green-400 mt-1"></i><span>Planetary AI agent orchestration</span></li>
+            <li class="flex items-start gap-3"><i class="fas fa-check text-green-400 mt-1"></i><span>Biometric payment enrollment</span></li>
+            <li class="flex items-start gap-3"><i class="fas fa-check text-green-400 mt-1"></i><span>AI certification programs</span></li>
+          </ul>
+          <div class="mt-6 p-4 border border-cyan-400/30 bg-cyan-400/5">
+            <div class="text-xs orbitron text-cyan-400 mb-2">TRIAL STATUS</div>
+            <div class="text-2xl font-bold text-green-400 mb-1">14 DAYS</div>
+            <div class="text-xs text-cyan-200/60">No credit card required. Full system access.</div>
+          </div>
+        </div>
+        <div>
+          <h3 class="orbitron text-sm text-cyan-400 mb-4 section-header">REGISTER NEURAL SIGNATURE</h3>
+          <form id="trial-form" class="space-y-3">
+            <div>
+              <label class="text-xs text-cyan-200/70 mb-1 block">DESIGNATION *</label>
+              <input type="text" class="hud-input" placeholder="Your full name" required/>
+            </div>
+            <div>
+              <label class="text-xs text-cyan-200/70 mb-1 block">COMM LINK (EMAIL) *</label>
+              <input type="email" class="hud-input" placeholder="operator@domain.com" required/>
+            </div>
+            <div>
+              <label class="text-xs text-cyan-200/70 mb-1 block">SECTOR (COMPANY)</label>
+              <input type="text" class="hud-input" placeholder="Optional"/>
+            </div>
+            <div>
+              <label class="text-xs text-cyan-200/70 mb-1 block">ACCESS CODE *</label>
+              <input type="password" class="hud-input" placeholder="Min 8 characters" required/>
+            </div>
+            <label class="hud-checkbox text-xs">
+              <input type="checkbox" required/>
+              <span class="box"></span>
+              <span>I accept the Neural Link Protocol terms</span>
+            </label>
+            <button type="submit" class="btn-hud btn-success w-full">◉ INITIATE TRIAL SEQUENCE</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROMPT ENGINE -->
+<div class="modal-overlay" id="prompt-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-cyan-400 mb-1">◉ MODULE 02 // GENERATION SUITE</div>
+        <h2 class="text-xl font-bold text-white">PROMPT EXPERIENCE</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('prompt-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="flex flex-wrap gap-2 mb-6">
+        <button class="tab-btn active" onclick="switchPromptTab(this, 'text')">TEXT</button>
+        <button class="tab-btn" onclick="switchPromptTab(this, 'image')">IMAGE</button>
+        <button class="tab-btn" onclick="switchPromptTab(this, 'video')">VIDEO</button>
+        <button class="tab-btn" onclick="switchPromptTab(this, 'object')">3D OBJECT</button>
+      </div>
+
+      <div id="prompt-text" class="prompt-tab">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="text-xs text-cyan-200/70 mb-2 block">INPUT DIRECTIVE</label>
+            <textarea id="text-prompt" class="hud-textarea" rows="6" placeholder="Describe what you want to generate..."></textarea>
+            <div class="grid grid-cols-2 gap-3 mt-3">
+              <div>
+                <label class="text-xs text-cyan-200/70 mb-1 block">MODEL</label>
+                <select class="hud-input">
+                  <option>GPT-Meta-4</option>
+                  <option>Claude-X</option>
+                  <option>PaLM-Ultra</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs text-cyan-200/70 mb-1 block">CREATIVITY</label>
+                <input type="range" min="0" max="100" value="70"/>
+              </div>
+            </div>
+            <button onclick="generateText()" class="btn-hud w-full mt-4">◉ GENERATE TEXT</button>
+          </div>
+          <div>
+            <label class="text-xs text-cyan-200/70 mb-2 block">OUTPUT STREAM</label>
+            <div id="text-output" class="console-log" style="min-height: 300px;">
+              <div class="info">Awaiting input directive...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="prompt-image" class="prompt-tab hidden">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="text-xs text-cyan-200/70 mb-2 block">VISUAL DIRECTIVE</label>
+            <textarea id="image-prompt" class="hud-textarea" rows="5" placeholder="Describe the image to generate..."></textarea>
+            <div class="grid grid-cols-2 gap-3 mt-3">
+              <div>
+                <label class="text-xs text-cyan-200/70 mb-1 block">STYLE</label>
+                <select class="hud-input">
+                  <option>Photorealistic</option>
+                  <option>Cyberpunk</option>
+                  <option>Anime</option>
+                  <option>Oil Painting</option>
+                  <option>3D Render</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs text-cyan-200/70 mb-1 block">RESOLUTION</label>
+                <select class="hud-input">
+                  <option>512x512</option>
+                  <option>1024x1024</option>
+                  <option>2048x2048</option>
+                </select>
+              </div>
+            </div>
+            <button onclick="generateImage()" class="btn-hud w-full mt-4">◉ RENDER IMAGE</button>
+          </div>
+          <div>
+            <label class="text-xs text-cyan-200/70 mb-2 block">RENDER OUTPUT</label>
+            <div id="image-output" class="console-log" style="min-height: 300px;">
+              <div class="info">Awaiting visual directive...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="prompt-video" class="prompt-tab hidden">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="text-xs text-cyan-200/70 mb-2 block">VIDEO DIRECTIVE</label>
+            <textarea id="video-prompt" class="hud-textarea" rows="5" placeholder="Describe the video scene..."></textarea>
+            <div class="grid grid-cols-2 gap-3 mt-3">
+              <div>
+                <label class="text-xs text-cyan-200/70 mb-1 block">DURATION</label>
+                <select class="hud-input">
+                  <option>4 seconds</option>
+                  <option>8 seconds</option>
+                  <option>16 seconds</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs text-cyan-200/70 mb-1 block">FPS</label>
+                <select class="hud-input">
+                  <option>24 fps</option>
+                  <option>30 fps</option>
+                  <option>60 fps</option>
+                </select>
+              </div>
+            </div>
+            <button onclick="generateVideo()" class="btn-hud w-full mt-4">◉ RENDER VIDEO</button>
+          </div>
+          <div>
+            <label class="text-xs text-cyan-200/70 mb-2 block">VIDEO OUTPUT</label>
+            <div id="video-output" class="console-log" style="min-height: 300px;">
+              <div class="info">Awaiting video directive...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="prompt-object" class="prompt-tab hidden">
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="text-xs text-cyan-200/70 mb-2 block">3D OBJECT DIRECTIVE</label>
+            <textarea id="object-prompt" class="hud-textarea" rows="5" placeholder="Describe the 3D object to generate..."></textarea>
+            <div class="grid grid-cols-2 gap-3 mt-3">
+              <div>
+                <label class="text-xs text-cyan-200/70 mb-1 block">FORMAT</label>
+                <select class="hud-input">
+                  <option>GLTF</option>
+                  <option>OBJ</option>
+                  <option>FBX</option>
+                  <option>USD</option>
+                </select>
+              </div>
+              <div>
+                <label class="text-xs text-cyan-200/70 mb-1 block">POLY COUNT</label>
+                <select class="hud-input">
+                  <option>Low (1k)</option>
+                  <option>Medium (10k)</option>
+                  <option>High (100k)</option>
+                </select>
+              </div>
+            </div>
+            <button onclick="generateObject()" class="btn-hud w-full mt-4">◉ GENERATE 3D</button>
+          </div>
+          <div>
+            <label class="text-xs text-cyan-200/70 mb-2 block">3D OUTPUT</label>
+            <div id="object-output" class="console-log" style="min-height: 300px;">
+              <div class="info">Awaiting 3D directive...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VERSED'ai -->
+<div class="modal-overlay" id="versedai-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-purple-400 mb-1">◉ MODULE 03 // APP HUB</div>
+        <h2 class="text-xl font-bold text-white">VERSED'ai — AI FOR ALL</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('versedai-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-cyan-200/70 mb-6">Live Intelligently — App Hub for AI. Interact with AI-powered entities, attend virtual meetings, concerts, and shopping experiences.</p>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <button onclick="launchVersedApp('AI Entities')" class="holo-card p-5 text-left">
+          <i class="fas fa-robot text-3xl text-purple-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">AI Entities</h3>
+          <p class="text-xs text-cyan-200/60">Interact with intelligent AI-powered entities.</p>
+        </button>
+        <button onclick="launchVersedApp('Virtual Meetings')" class="holo-card p-5 text-left">
+          <i class="fas fa-users text-3xl text-cyan-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">Virtual Meetings</h3>
+          <p class="text-xs text-cyan-200/60">Immersive collaborative workspaces.</p>
+        </button>
+        <button onclick="launchVersedApp('Virtual Concerts')" class="holo-card p-5 text-left">
+          <i class="fas fa-music text-3xl text-pink-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">Virtual Concerts</h3>
+          <p class="text-xs text-cyan-200/60">Live music in the metaverse.</p>
+        </button>
+        <button onclick="launchVersedApp('Craiyon Art')" class="holo-card p-5 text-left">
+          <i class="fas fa-paint-brush text-3xl text-yellow-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">Craiyon AI Art</h3>
+          <p class="text-xs text-cyan-200/60">AI art generator by Boris Dayma.</p>
+        </button>
+        <button onclick="launchVersedApp('Recommendations')" class="holo-card p-5 text-left">
+          <i class="fas fa-lightbulb text-3xl text-green-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">Product Recommendations</h3>
+          <p class="text-xs text-cyan-200/60">AI-driven product suggestions.</p>
+        </button>
+        <button onclick="launchVersedApp('Model Lifecycle')" class="holo-card p-5 text-left">
+          <i class="fas fa-project-diagram text-3xl text-blue-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">AI Model Lifecycle</h3>
+          <p class="text-xs text-cyan-200/60">Build, validate, deploy models.</p>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ECONOMY -->
+<div class="modal-overlay" id="economy-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-yellow-400 mb-1">◉ MODULE 04 // DIGITAL ECONOMY</div>
+        <h2 class="text-xl font-bold text-white">DIGITAL ECONOMY & VR</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('economy-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <button onclick="launchEcon('MyBUYo Biometric')" class="holo-card p-5 text-left">
+          <i class="fas fa-fingerprint text-3xl text-yellow-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">MyBUY'o Biometric</h3>
+          <p class="text-xs text-cyan-200/60">Biometric payments for safer, faster shopping.</p>
+        </button>
+        <button onclick="launchEcon('Blockchain Trading')" class="holo-card p-5 text-left">
+          <i class="fas fa-link text-3xl text-orange-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">Blockchain Trading</h3>
+          <p class="text-xs text-cyan-200/60">Asset trading on decentralized chains.</p>
+        </button>
+        <button onclick="launchEcon('Decentralized Ecosystem')" class="holo-card p-5 text-left">
+          <i class="fas fa-network-wired text-3xl text-cyan-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">Decentralized Ecosystem</h3>
+          <p class="text-xs text-cyan-200/60">Peer-to-peer value exchange.</p>
+        </button>
+        <button onclick="launchEcon('Cardboard VR')" class="holo-card p-5 text-left">
+          <i class="fas fa-vr-cardboard text-3xl text-purple-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">Cardboard VR</h3>
+          <p class="text-xs text-cyan-200/60">Build-your-own VR viewer experience.</p>
+        </button>
+        <button onclick="launchEcon('3D Scanning')" class="holo-card p-5 text-left">
+          <i class="fas fa-cube text-3xl text-green-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">3D Scanning</h3>
+          <p class="text-xs text-cyan-200/60">World building via spatial capture.</p>
+        </button>
+        <button onclick="launchEcon('Virtual Real Estate')" class="holo-card p-5 text-left">
+          <i class="fas fa-home text-3xl text-blue-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-1">Virtual Real Estate</h3>
+          <p class="text-xs text-cyan-200/60">Search & acquire digital land.</p>
+        </button>
+      </div>
+      <div class="holo-card p-5">
+        <h3 class="orbitron text-sm text-yellow-400 mb-3 section-header">ENROLL IN BIOMETRIC PAYMENTS</h3>
+        <form id="biometric-form" class="grid md:grid-cols-2 gap-3">
+          <input type="text" class="hud-input" placeholder="Full name" required/>
+          <input type="email" class="hud-input" placeholder="Email" required/>
+          <select class="hud-input">
+            <option>Face Recognition</option>
+            <option>Voice Print</option>
+            <option>Iris Scan</option>
+            <option>Full Biometric Suite</option>
+          </select>
+          <input type="text" class="hud-input" placeholder="Device ID" required/>
+          <button type="submit" class="btn-hud btn-success md:col-span-2">◉ ENROLL IN MyBUY'o</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ENTERPRISE -->
+<div class="modal-overlay" id="enterprise-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-cyan-400 mb-1">◉ ENTERPRISE & GAMING</div>
+        <h2 class="text-xl font-bold text-white">ENTERPRISE SOLUTIONS</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('enterprise-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="holo-card p-5">
+          <i class="fas fa-digital-tachograph text-3xl text-cyan-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-2">Digital Twins</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Enterprise digital twin simulation platform.</p>
+          <button onclick="deployBundle('Digital Twins')" class="btn-hud text-xs">DEPLOY</button>
+        </div>
+        <div class="holo-card p-5">
+          <i class="fas fa-chart-line text-3xl text-green-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-2">AI CRM & Virtual Training</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">AI-powered customer relations and workforce training.</p>
+          <button onclick="deployBundle('AI CRM')" class="btn-hud text-xs">DEPLOY</button>
+        </div>
+        <div class="holo-card p-5">
+          <i class="fas fa-users text-3xl text-purple-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-2">Social VR Venues</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Immersive social spaces for enterprise collaboration.</p>
+          <button onclick="deployBundle('Social VR')" class="btn-hud text-xs">DEPLOY</button>
+        </div>
+        <div class="holo-card p-5">
+          <i class="fas fa-gamepad text-3xl text-yellow-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-2">Blockchain Gaming</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Blockchain-integrated gaming experiences.</p>
+          <button onclick="deployBundle('Gaming')" class="btn-hud text-xs">DEPLOY</button>
+        </div>
+      </div>
+      <div class="holo-card p-5">
+        <h3 class="orbitron text-sm text-cyan-400 mb-3 section-header">REQUEST ENTERPRISE DEMO</h3>
+        <form id="enterprise-form" class="grid md:grid-cols-2 gap-3">
+          <input type="text" class="hud-input" placeholder="Company name" required/>
+          <input type="email" class="hud-input" placeholder="Business email" required/>
+          <input type="text" class="hud-input" placeholder="Industry" required/>
+          <select class="hud-input">
+            <option>Bundle: Digital Twins</option>
+            <option>Bundle: AI CRM</option>
+            <option>Bundle: Social VR</option>
+            <option>Bundle: Gaming</option>
+            <option>Bundle: All</option>
+          </select>
+          <textarea class="hud-textarea md:col-span-2" rows="3" placeholder="Requirements..."></textarea>
+          <button type="submit" class="btn-hud btn-success md:col-span-2">◉ SUBMIT REQUEST</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- AI CLOUD -->
+<div class="modal-overlay" id="cloud-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-cyan-400 mb-1">◉ AI CLOUD INFRASTRUCTURE</div>
+        <h2 class="text-xl font-bold text-white">THE AI CLOUD & TECH STACK</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('cloud-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-cyan-200/70 mb-6">Empowering users with 20,000+ AI models across various industries, designed for ultimate productivity and creativity.</p>
+      <div class="grid md:grid-cols-4 gap-3 mb-6">
+        <div class="holo-card p-4 text-center">
+          <div class="text-2xl font-bold text-cyan-400">20K+</div>
+          <div class="text-xs text-cyan-200/60">AI MODELS</div>
+        </div>
+        <div class="holo-card p-4 text-center">
+          <div class="text-2xl font-bold text-green-400">99.9%</div>
+          <div class="text-xs text-cyan-200/60">UPTIME</div>
+        </div>
+        <div class="holo-card p-4 text-center">
+          <div class="text-2xl font-bold text-purple-400">150+</div>
+          <div class="text-xs text-cyan-200/60">REGIONS</div>
+        </div>
+        <div class="holo-card p-4 text-center">
+          <div class="text-2xl font-bold text-yellow-400">12ms</div>
+          <div class="text-xs text-cyan-200/60">AVG LATENCY</div>
+        </div>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="holo-card p-5">
+          <h3 class="font-bold text-white mb-3"><i class="fas fa-cube text-cyan-400 mr-2"></i>Web3 Environments</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Visit new places, play immersive games, fly through space and more.</p>
+          <button onclick="launchCloud('Web3')" class="btn-hud text-xs">EXPLORE</button>
+        </div>
+        <div class="holo-card p-5">
+          <h3 class="font-bold text-white mb-3"><i class="fas fa-vr-cardboard text-purple-400 mr-2"></i>3D AI Environments</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Cardboard VR, immersive games, and spatial experiences.</p>
+          <button onclick="launchCloud('3D AI')" class="btn-hud text-xs">LAUNCH</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOP TOOLS -->
+<div class="modal-overlay" id="tools-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-cyan-400 mb-1">◉ TOOL DIRECTORY</div>
+        <h2 class="text-xl font-bold text-white">TOP TOOLS</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('tools-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="grid md:grid-cols-2 gap-3">
+        <button onclick="launchTool('Craiyon', 'https://www.craiyon.com/')" class="holo-card p-4 text-left flex items-center gap-3">
+          <i class="fas fa-paint-brush text-2xl text-pink-400"></i>
+          <div class="flex-1">
+            <div class="text-white font-bold text-sm">Craiyon</div>
+            <div class="text-xs text-cyan-200/60">AI Art Generator</div>
+          </div>
+          <i class="fas fa-external-link-alt text-cyan-400"></i>
+        </button>
+        <button onclick="launchTool('Avatar Prompter', 'https://prompt.com/')" class="holo-card p-4 text-left flex items-center gap-3">
+          <i class="fas fa-user-circle text-2xl text-purple-400"></i>
+          <div class="flex-1">
+            <div class="text-white font-bold text-sm">Avatar Prompter</div>
+            <div class="text-xs text-cyan-200/60">AI Avatar Creation</div>
+          </div>
+          <i class="fas fa-external-link-alt text-cyan-400"></i>
+        </button>
+        <button onclick="launchTool('Thunkable', 'https://thunkable.com/')" class="holo-card p-4 text-left flex items-center gap-3">
+          <i class="fas fa-mobile-alt text-2xl text-green-400"></i>
+          <div class="flex-1">
+            <div class="text-white font-bold text-sm">Thunkable</div>
+            <div class="text-xs text-cyan-200/60">Mobile App Builder</div>
+          </div>
+          <i class="fas fa-external-link-alt text-cyan-400"></i>
+        </button>
+        <button onclick="launchTool('InVideo', 'https://invideo.io/')" class="holo-card p-4 text-left flex items-center gap-3">
+          <i class="fas fa-video text-2xl text-red-400"></i>
+          <div class="flex-1">
+            <div class="text-white font-bold text-sm">InVideo</div>
+            <div class="text-xs text-cyan-200/60">AI Video Generator</div>
+          </div>
+          <i class="fas fa-external-link-alt text-cyan-400"></i>
+        </button>
+        <button onclick="launchTool('MyBUYo', 'https://mybuyyo.godaddysites.com/')" class="holo-card p-4 text-left flex items-center gap-3">
+          <i class="fas fa-fingerprint text-2xl text-yellow-400"></i>
+          <div class="flex-1">
+            <div class="text-white font-bold text-sm">MyBUY'o</div>
+            <div class="text-xs text-cyan-200/60">Biometric Payments</div>
+          </div>
+          <i class="fas fa-external-link-alt text-cyan-400"></i>
+        </button>
+        <button onclick="launchTool('MarsFiat', 'https://marsfiat.godaddysites.com/')" class="holo-card p-4 text-left flex items-center gap-3">
+          <i class="fas fa-home text-2xl text-blue-400"></i>
+          <div class="flex-1">
+            <div class="text-white font-bold text-sm">MarsFiat</div>
+            <div class="text-xs text-cyan-200/60">Virtual Real Estate</div>
+          </div>
+          <i class="fas fa-external-link-alt text-cyan-400"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SLAMAR -->
+<div class="modal-overlay" id="slamar-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-cyan-400 mb-1">◉ SPATIAL AI MODULE</div>
+        <h2 class="text-xl font-bold text-white">SLAMAR — Spatial AI & AR Mapper</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('slamar-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-cyan-200/70 mb-6">Enable full-scale spatial interaction and navigation across AR layers in the Metaverse using SLAMAR. This module handles real-world spatial anchors and position tracking for all avatar-linked environments.</p>
+      <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="holo-card p-5">
+          <div class="orbitron text-xs text-cyan-400 mb-2">◉ URANUS AGENT</div>
+          <h3 class="text-lg font-bold text-white mb-2">Activate SLAMAR</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Initialize spatial mapping and AR anchor deployment across all linked environments.</p>
+          <button onclick="activateAgent('Uranus', 'SLAMAR')" class="btn-hud w-full">◉ ACTIVATE URANUS</button>
+        </div>
+        <div class="holo-card p-5">
+          <div class="orbitron text-xs text-cyan-400 mb-2">◉ NEPTUNE AGENT</div>
+          <h3 class="text-lg font-bold text-white mb-2">Visualize Data</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Render spatial data streams, anchor heatmaps, and navigation paths in 3D.</p>
+          <button onclick="activateAgent('Neptune', 'SLAMAR')" class="btn-hud w-full">◉ VISUALIZE NEPTUNE</button>
+        </div>
+      </div>
+      <div class="holo-card p-4">
+        <div class="orbitron text-xs text-cyan-400 mb-2">◉ SPATIAL CONSOLE</div>
+        <div class="console-log" id="slamar-console">
+          <div class="line info">[SLAMAR] Spatial mapper standby.</div>
+          <div class="line ok">[SLAMAR] Anchor database: 2,847 entries.</div>
+          <div class="line ok">[SLAMAR] AR layer sync: nominal.</div>
+          <div class="line info">[SLAMAR] Awaiting planetary agent activation...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HEYLL0GEN -->
+<div class="modal-overlay" id="heyllogen-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-purple-400 mb-1">◉ HOLOGRAM ENGINE</div>
+        <h2 class="text-xl font-bold text-white">HEYLL0GEN — Hologram Knowledge Generator</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('heyllogen-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-cyan-200/70 mb-6">HeylloGen creates dynamic holographic models from AI libraries, programming syntax, user history, and planetary agent instructions. Initiate a hologram to visualize your AI command archive.</p>
+      <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="holo-card p-5">
+          <div class="orbitron text-xs text-purple-400 mb-2">◉ SEDNA AGENT</div>
+          <h3 class="text-lg font-bold text-white mb-2">Generate Hologram</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Render dynamic holographic models from your AI libraries and command archives.</p>
+          <button onclick="activateAgent('Sedna', 'HeylloGen')" class="btn-hud btn-purple w-full">◉ GENERATE SEDNA</button>
+        </div>
+        <div class="holo-card p-5">
+          <div class="orbitron text-xs text-purple-400 mb-2">◉ IXION AGENT</div>
+          <h3 class="text-lg font-bold text-white mb-2">Curate Data</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Organize and curate holographic datasets for optimal retrieval.</p>
+          <button onclick="activateAgent('Ixion', 'HeylloGen')" class="btn-hud btn-purple w-full">◉ CURATE IXION</button>
+        </div>
+      </div>
+      <div class="holo-card p-4">
+        <div class="orbitron text-xs text-purple-400 mb-2">◉ HOLOGRAM CONSOLE</div>
+        <div class="console-log" id="heyllogen-console">
+          <div class="line info">[HEYLL0GEN] Holographic engine standby.</div>
+          <div class="line ok">[HEYLL0GEN] AI library index: 20,000+ entries.</div>
+          <div class="line ok">[HEYLL0GEN] Syntax parser: online.</div>
+          <div class="line info">[HEYLL0GEN] Awaiting planetary agent activation...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- META-PORTAL -->
+<div class="modal-overlay" id="portal-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-pink-400 mb-1">◉ METAVERSE PORTAL</div>
+        <h2 class="text-xl font-bold text-white">ENTER THE AiMetaverse PORTAL</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('portal-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-cyan-200/70 mb-6">Travel between virtual planets and simulation environments. Supported realms include MarsVR, TwinPlanet, AiCampus, and VerseWorlds.</p>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <button onclick="launchRealm('MarsVR')" class="holo-card p-4 text-center">
+          <i class="fas fa-mars text-3xl text-red-400 mb-2"></i>
+          <div class="text-xs orbitron text-white">MARS-VR</div>
+          <div class="text-xs text-red-400 mt-1">● ONLINE</div>
+        </button>
+        <button onclick="launchRealm('TwinPlanet')" class="holo-card p-4 text-center">
+          <i class="fas fa-globe-americas text-3xl text-green-400 mb-2"></i>
+          <div class="text-xs orbitron text-white">TWIN PLANET</div>
+          <div class="text-xs text-green-400 mt-1">● ONLINE</div>
+        </button>
+        <button onclick="launchRealm('AiCampus')" class="holo-card p-4 text-center">
+          <i class="fas fa-university text-3xl text-cyan-400 mb-2"></i>
+          <div class="text-xs orbitron text-white">AI CAMPUS</div>
+          <div class="text-xs text-cyan-400 mt-1">● ONLINE</div>
+        </button>
+        <button onclick="launchRealm('VerseWorlds')" class="holo-card p-4 text-center">
+          <i class="fas fa-infinity text-3xl text-purple-400 mb-2"></i>
+          <div class="text-xs orbitron text-white">VERSE WORLDS</div>
+          <div class="text-xs text-purple-400 mt-1">● ONLINE</div>
+        </button>
+      </div>
+      <div class="grid md:grid-cols-2 gap-4">
+        <div class="holo-card p-5">
+          <h3 class="font-bold text-white mb-3"><i class="fas fa-rocket text-red-400 mr-2"></i>Launch MarsVR (Mars)</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Explore the red planet virtually with full AI agent support.</p>
+          <button onclick="activateAgent('Mars', 'MetaPortal')" class="btn-hud btn-danger w-full">◉ LAUNCH MARS-VR</button>
+        </div>
+        <div class="holo-card p-5">
+          <h3 class="font-bold text-white mb-3"><i class="fas fa-globe text-green-400 mr-2"></i>Initialize Preprocessing (Earth)</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Launch the Earth twin digital simulation with full environmental mapping.</p>
+          <button onclick="activateAgent('Earth', 'MetaPortal')" class="btn-hud btn-success w-full">◉ INITIALIZE EARTH</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NLP2CODE + PUSH2 -->
+<div class="modal-overlay" id="n2c-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-yellow-400 mb-1">◉ NLP + GIT PLUGIN</div>
+        <h2 class="text-xl font-bold text-white">NLP2CODE + PUSH2 GIT PLUGIN</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('n2c-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-cyan-200/70 mb-6">Autogenerate and commit code using voice or text via the NLP2CODE QuickBuilder. Use biometric Push2 verification to secure AI builds.</p>
+      <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="holo-card p-5">
+          <div class="orbitron text-xs text-yellow-400 mb-2">◉ MERCURY AGENT</div>
+          <h3 class="text-lg font-bold text-white mb-2">Analyze Text</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Convert natural language to code via NLP2CODE QuickBuilder.</p>
+          <textarea id="nlp-input" class="hud-textarea mb-3" rows="3" placeholder="Describe what you want to build..."></textarea>
+          <button onclick="activateAgent('Mercury', 'NLP2CODE')" class="btn-hud btn-yellow w-full">◉ ANALYZE MERCURY</button>
+        </div>
+        <div class="holo-card p-5">
+          <div class="orbitron text-xs text-yellow-400 mb-2">◉ SATURN AGENT</div>
+          <h3 class="text-lg font-bold text-white mb-2">Deploy Model</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Push2 biometric verification and secure git deployment.</p>
+          <div class="space-y-2 mb-3">
+            <label class="hud-checkbox text-xs"><input type="checkbox" checked/><span class="box"></span><span>Face verification</span></label>
+            <label class="hud-checkbox text-xs"><input type="checkbox" checked/><span class="box"></span><span>Voice print</span></label>
+            <label class="hud-checkbox text-xs"><input type="checkbox"/><span class="box"></span><span>2FA backup</span></label>
+          </div>
+          <button onclick="activateAgent('Saturn', 'Push2')" class="btn-hud w-full">◉ DEPLOY SATURN</button>
+        </div>
+      </div>
+      <div class="holo-card p-4">
+        <div class="orbitron text-xs text-yellow-400 mb-2">◉ CODE CONSOLE</div>
+        <div class="console-log" id="n2c-console">
+          <div class="line info">[NLP2CODE] QuickBuilder standby.</div>
+          <div class="line ok">[NLP2CODE] Language models: 47 loaded.</div>
+          <div class="line ok">[Push2] Biometric auth: ready.</div>
+          <div class="line info">[NLP2CODE] Awaiting voice/text input...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CoMan'd UI -->
+<div class="modal-overlay" id="comand-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-blue-400 mb-1">◉ TASK AGENT LAUNCHER</div>
+        <h2 class="text-xl font-bold text-white">CoMan'd UI — Task Agent Launcher</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('comand-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-cyan-200/70 mb-6">Manage all planetary AI agents, launch task-specific scripts, and monitor build pipelines using the CoMan'd dashboard.</p>
+      <div class="grid md:grid-cols-2 gap-4 mb-6">
+        <div class="holo-card p-5">
+          <div class="orbitron text-xs text-yellow-400 mb-2">◉ OBERON AGENT</div>
+          <h3 class="text-lg font-bold text-white mb-2">Orchestrate Agents</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Launch and coordinate all 12 planetary AI agents simultaneously.</p>
+          <button onclick="activateAgent('Oberon', 'CoMan\'d')" class="btn-hud btn-yellow w-full">◉ ORCHESTRATE OBERON</button>
+        </div>
+        <div class="holo-card p-5">
+          <div class="orbitron text-xs text-blue-400 mb-2">◉ JUPITER AGENT</div>
+          <h3 class="text-lg font-bold text-white mb-2">Tune Models</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Fine-tune AI models with hyperparameter optimization.</p>
+          <button onclick="activateAgent('Jupiter', 'CoMan\'d')" class="btn-hud w-full">◉ TUNE JUPITER</button>
+        </div>
+      </div>
+      <div class="holo-card p-4 mb-4">
+        <div class="orbitron text-xs text-blue-400 mb-2">◉ AGENT STATUS MATRIX</div>
+        <div class="grid grid-cols-3 md:grid-cols-4 gap-2 text-xs">
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> Uranus</div>
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> Neptune</div>
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> Sedna</div>
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> Ixion</div>
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> Mars</div>
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> Earth</div>
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> Mercury</div>
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> Saturn</div>
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> Oberon</div>
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> Jupiter</div>
+          <div class="p-2 border border-yellow-500/40 bg-yellow-500/5"><span class="text-yellow-400">●</span> Cygnus</div>
+          <div class="p-2 border border-green-500/40 bg-green-500/5"><span class="text-green-400">●</span> PaTHos</div>
+        </div>
+      </div>
+      <div class="holo-card p-4">
+        <div class="orbitron text-xs text-blue-400 mb-2">◉ DASHBOARD CONSOLE</div>
+        <div class="console-log" id="comand-console">
+          <div class="line info">[CoMan'd] Task agent launcher standby.</div>
+          <div class="line ok">[CoMan'd] 12/12 agents online.</div>
+          <div class="line ok">[CoMan'd] Build pipeline: healthy.</div>
+          <div class="line info">[CoMan'd] Awaiting orchestration command...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CODE LIBRARY -->
+<div class="modal-overlay" id="library-modal">
+  <div class="modal-panel">
+    <div class="modal-header">
+      <div>
+        <div class="text-xs orbitron text-cyan-400 mb-1">◉ CODE REPOSITORY</div>
+        <h2 class="text-xl font-bold text-white">AiMetaverse Code Library</h2>
+      </div>
+      <button class="modal-close" onclick="closeModal('library-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <p class="text-cyan-200/70 mb-6">Explore and utilize reusable code modules, utilities, and AI integrations created throughout the AiMetaverse project. Fully synced with planetary AI agent logic.</p>
+      <div class="grid md:grid-cols-3 gap-4 mb-6">
+        <div class="holo-card p-5">
+          <i class="fas fa-filter text-3xl text-cyan-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-2">Cygnus Filter Engine</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">High-performance data filtering and transformation pipeline.</p>
+          <button onclick="activateAgent('Cygnus', 'CodeLib')" class="btn-hud w-full">◉ RUN CYNUS</button>
+        </div>
+        <div class="holo-card p-5">
+          <i class="fas fa-language text-3xl text-purple-400 mb-3"></i>
+          <h3 class="font-bold text-white mb-2">PaTHos NLP Stack</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">Natural language processing with multi-language support.</p>
+          <button onclick="activateAgent('PaTHos', 'CodeLib')" class="btn-hud btn-purple w-full">◉ RUN PaTHos</button>
+        </div>
+        <div class="holo-card p-5">
+          <i class="fab fa-github text-3xl text-white mb-3"></i>
+          <h3 class="font-bold text-white mb-2">Source Repository</h3>
+          <p class="text-xs text-cyan-200/60 mb-3">View full source on GitHub — FacePrintPay organization.</p>
+          <button onclick="window.open('https://github.com/FacePrintPay', '_blank')" class="btn-hud w-full">◉ VIEW ON GITHUB</button>
+        </div>
+      </div>
+      <div class="holo-card p-4">
+        <div class="orbitron text-xs text-cyan-400 mb-2">◉ LIBRARY CONSOLE</div>
+        <div class="console-log" id="library-console">
+          <div class="line info">[CodeLib] Repository standby.</div>
+          <div class="line ok">[CodeLib] Modules: 342 indexed.</div>
+          <div class="line ok">[CodeLib] Cygnus filter: v2.4.1</div>
+          <div class="line ok">[CodeLib] PaTHos NLP: v1.8.7</div>
+          <div class="line info">[CodeLib] Awaiting module execution...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="notification-container"></div>
+
+<script>
+// ========== THREE.JS SPACE SCENE ==========
+let scene, camera, renderer, stars, planets = [], nebula;
+let mouseX = 0, mouseY = 0;
+
+function initSpace() {
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+  camera.position.z = 500;
+
+  renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('space-canvas'), antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // Starfield
+  const starGeo = new THREE.BufferGeometry();
+  const starCount = 5000;
+  const positions = new Float32Array(starCount * 3);
+  const colors = new Float32Array(starCount * 3);
+  for (let i = 0; i < starCount; i++) {
+    positions[i * 3] = (Math.random() - 0.5) * 2000;
+    positions[i * 3 + 1] = (Math.random() - 0.5) * 2000;
+    positions[i * 3 + 2] = (Math.random() - 0.5) * 2000;
+    const color = new THREE.Color();
+    color.setHSL(0.5 + Math.random() * 0.2, 0.8, 0.6 + Math.random() * 0.4);
+    colors[i * 3] = color.r;
+    colors[i * 3 + 1] = color.g;
+    colors[i * 3 + 2] = color.b;
+  }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+  starGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+  const starMat = new THREE.PointsMaterial({ size: 2, vertexColors: true, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending });
+  stars = new THREE.Points(starGeo, starMat);
+  scene.add(stars);
+
+  // Planets
+  const planetData = [
+    { pos: [-300, 100, -400], color: 0xff6b35, size: 40 },
+    { pos: [350, -150, -500], color: 0x4da6ff, size: 55 },
+    { pos: [-200, -200, -600], color: 0xb565ff, size: 35 },
+    { pos: [250, 200, -700], color: 0xffd700, size: 30 }
+  ];
+  planetData.forEach(p => {
+    const geo = new THREE.SphereGeometry(p.size, 32, 32);
+    const mat = new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.9 });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.position.set(...p.pos);
+    scene.add(mesh);
+    const glowGeo = new THREE.SphereGeometry(p.size * 1.2, 32, 32);
+    const glowMat = new THREE.MeshBasicMaterial({ color: p.color, transparent: true, opacity: 0.15, blending: THREE.AdditiveBlending });
+    const glow = new THREE.Mesh(glowGeo, glowMat);
+    glow.position.set(...p.pos);
+    scene.add(glow);
+    planets.push({ mesh, glow });
+  });
+
+  // Nebula
+  const nebulaGeo = new THREE.BufferGeometry();
+  const nebulaCount = 500;
+  const nebulaPos = new Float32Array(nebulaCount * 3);
+  const nebulaColors = new Float32Array(nebulaCount * 3);
+  for (let i = 0; i < nebulaCount; i++) {
+    nebulaPos[i * 3] = (Math.random() - 0.5) * 1500;
+    nebulaPos[i * 3 + 1] = (Math.random() - 0.5) * 1500;
+    nebulaPos[i * 3 + 2] = (Math.random() - 0.5) * 1500 - 500;
+    const c = new THREE.Color();
+    c.setHSL(Math.random() * 0.3 + 0.5, 0.8, 0.5);
+    nebulaColors[i * 3] = c.r;
+    nebulaColors[i * 3 + 1] = c.g;
+    nebulaColors[i * 3 + 2] = c.b;
+  }
+  nebulaGeo.setAttribute('position', new THREE.BufferAttribute(nebulaPos, 3));
+  nebulaGeo.setAttribute('color', new THREE.BufferAttribute(nebulaColors, 3));
+  const nebulaMat = new THREE.PointsMaterial({ size: 8, vertexColors: true, transparent: true, opacity: 0.3, blending: THREE.AdditiveBlending });
+  nebula = new THREE.Points(nebulaGeo, nebulaMat);
+  scene.add(nebula);
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+    document.getElementById('coord-display').textContent = 
+      `${mouseX.toFixed(2)}, ${mouseY.toFixed(2)}, ${(Date.now() % 1000 / 1000).toFixed(2)}`;
+  });
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  animate();
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (stars) { stars.rotation.x += 0.0001; stars.rotation.y += 0.0002; }
+  if (nebula) { nebula.rotation.y += 0.0001; }
+  planets.forEach((p, i) => {
+    p.mesh.rotation.y += 0.002;
+    p.glow.rotation.y += 0.002;
+    p.mesh.position.y += Math.sin(Date.now() * 0.001 + i) * 0.1;
+    p.glow.position.y = p.mesh.position.y;
+  });
+  camera.position.x += (mouseX * 50 - camera.position.x) * 0.02;
+  camera.position.y += (-mouseY * 50 - camera.position.y) * 0.02;
+  camera.lookAt(scene.position);
+  renderer.render(scene, camera);
+}
+
+// ========== MODAL SYSTEM ==========
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+  document.body.style.overflow = 'hidden';
+  logToAgentConsole('[SYS] Module engaged: ' + id.replace('-modal', '').toUpperCase(), 'info');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', (e) => {
+    if (e.target === m) { m.classList.remove('active'); document.body.style.overflow = ''; }
+  });
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
+    document.body.style.overflow = '';
+  }
+});
+
+// ========== NOTIFICATIONS ==========
+function notify(msg, type = 'success') {
+  const container = document.getElementById('notification-container');
+  const colors = {
+    success: { border: '#00ff88', text: '#a0ffd0' },
+    error: { border: '#ff3366', text: '#ff8099' },
+    info: { border: '#7ff8ff', text: '#7ff8ff' }
+  };
+  const c = colors[type];
+  const el = document.createElement('div');
+  el.className = 'notification';
+  el.style.borderColor = c.border;
+  el.style.boxShadow = `0 0 30px ${c.border}40`;
+  el.innerHTML = `
+    <div class="flex items-start gap-3">
+      <i class="fas fa-bell text-lg" style="color: ${c.border}"></i>
+      <div class="flex-1">
+        <div class="text-xs orbitron mb-1" style="color: ${c.border}">SYSTEM ALERT</div>
+        <div class="text-sm" style="color: ${c.text}">${msg}</div>
+      </div>
+    </div>
+  `;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.transition = 'all 0.4s';
+    el.style.transform = 'translateX(400px)';
+    el.style.opacity = '0';
+    setTimeout(() => el.remove(), 400);
+  }, 3000);
+}
+
+// ========== CLOCK ==========
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+  document.getElementById('clock').textContent = `${h}:${m}:${s} UTC`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ========== TYPING EFFECT ==========
+const heroMessages = [
+  'INITIALIZING NEURAL LINK',
+  'CONNECTING TO PLANETARY AGENTS',
+  'SLAMAR SPATIAL MAPPING ONLINE',
+  'HEYLL0GEN HOLOGRAPHIC ENGINE READY',
+  'NLP2CODE COMPILER LINKED',
+  'CoMan\'d DASHBOARD SYNCED',
+  'ALL SYSTEMS NOMINAL'
+];
+let msgIdx = 0, charIdx = 0;
+function typeHero() {
+  const el = document.getElementById('hero-typing');
+  const msg = heroMessages[msgIdx];
+  if (charIdx <= msg.length) {
+    el.textContent = msg.substring(0, charIdx);
+    charIdx++;
+    setTimeout(typeHero, 60);
+  } else {
+    setTimeout(() => { charIdx = 0; msgIdx = (msgIdx + 1) % heroMessages.length; typeHero(); }, 2500);
+  }
+}
+typeHero();
+
+// ========== AGENT CONSOLE ==========
+function logToAgentConsole(msg, type = 'info') {
+  const console = document.getElementById('agent-console');
+  const line = document.createElement('div');
+  line.className = 'line ' + type;
+  const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+  line.textContent = `[${time}] ${msg}`;
+  console.appendChild(line);
+  console.scrollTop = console.scrollHeight;
+  // Keep last 50 lines
+  while (console.children.length > 50) console.removeChild(console.firstChild);
+}
+
+function sendAgentCmd() {
+  const input = document.getElementById('agent-input');
+  const cmd = input.value.trim();
+  if (!cmd) return;
+  logToAgentConsole(`[OP] ${cmd}`, 'info');
+  input.value = '';
+  
+  setTimeout(() => {
+    const responses = [
+      { msg: 'Planetary agent network: all 12 agents responding.', type: 'ok' },
+      { msg: 'SLAMAR spatial mapper: anchor sync complete.', type: 'ok' },
+      { msg: 'HeylloGen: holographic engine at 76% capacity.', type: 'ok' },
+      { msg: 'NLP2CODE: 47 language models ready.', type: 'ok' },
+      { msg: 'CoMan\'d: build pipeline healthy.', type: 'ok' },
+      { msg: 'Cygnus filter: processing 2.4M records/sec.', type: 'ok' },
+      { msg: 'PaTHos NLP: multi-language parser online.', type: 'ok' },
+      { msg: 'Warning: high load on Cygnus filter engine.', type: 'warn' }
+    ];
+    const r = responses[Math.floor(Math.random() * responses.length)];
+    logToAgentConsole(r.msg, r.type);
+  }, 500);
+}
+
+// ========== PLANETARY AGENT ACTIVATION ==========
+function activateAgent(agentName, module) {
+  logToAgentConsole(`[ACTIVATE] Planetary Agent ${agentName} @ ${module}`, 'warn');
+  notify(`◉ Activating Planetary Agent: ${agentName}`, 'info');
+  
+  // Module-specific console logging
+  const consoleMap = {
+    'SLAMAR': 'slamar-console',
+    'HeylloGen': 'heyllogen-console',
+    'NLP2CODE': 'n2c-console',
+    'Push2': 'n2c-console',
+    'MetaPortal': null,
+    'CoMan\'d': 'comand-console',
+    'CodeLib': 'library-console'
+  };
+  
+  const consoleId = consoleMap[module];
+  if (consoleId) {
+    const c = document.getElementById(consoleId);
+    const addLog = (msg, type) => {
+      const line = document.createElement('div');
+      line.className = 'line ' + type;
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+      line.textContent = `[${time}] ${msg}`;
+      c.appendChild(line);
+      c.scrollTop = c.scrollHeight;
+    };
+    
+    addLog(`[ACTIVATE] Agent ${agentName} initializing...`, 'warn');
+    
+    setTimeout(() => addLog(`[${agentName}] Loading neural weights...`, 'info'), 400);
+    setTimeout(() => addLog(`[${agentName}] Connecting to ${module} subsystem...`, 'info'), 900);
+    setTimeout(() => addLog(`[${agentName}] Synchronizing state vectors...`, 'info'), 1400);
+    setTimeout(() => {
+      addLog(`[${agentName}] ✓ Agent online and operational.`, 'ok');
+      notify(`◉ Agent ${agentName} fully operational`, 'success');
+    }, 2000);
+  } else {
+    // MetaPortal - realm launch
+    setTimeout(() => {
+      notify(`◉ Agent ${agentName} engaged — realm initialized`, 'success');
+    }, 1500);
+  }
+}
+
+// ========== TRIAL FORM ==========
+document.getElementById('trial-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  notify('◉ Neural link established. Welcome to AI Metaverse!', 'success');
+  logToAgentConsole('[TRIAL] New operator registered', 'ok');
+  setTimeout(() => closeModal('trial-modal'), 1500);
+  e.target.reset();
+});
+
+// ========== PROMPT ENGINE ==========
+function switchPromptTab(btn, tab) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.prompt-tab').forEach(t => t.classList.add('hidden'));
+  document.getElementById('prompt-' + tab).classList.remove('hidden');
+}
+
+function generateText() {
+  const prompt = document.getElementById('text-prompt').value.trim();
+  const output = document.getElementById('text-output');
+  if (!prompt) { notify('Input directive required', 'error'); return; }
+  output.innerHTML = '<div class="loading-bar w-full mb-3"></div><div class="info">Processing...</div>';
+  setTimeout(() => {
+    output.innerHTML = `
+      <div class="ok">[OK] Text generation complete.</div>
+      <div class="info">[INPUT] "${prompt.substring(0, 60)}${prompt.length > 60 ? '...' : ''}"</div>
+      <div class="info" style="margin-top: 8px;">In the vast expanse of the AI Metaverse, where digital consciousness flows like rivers of light, your directive has manifested into a tapestry of possibilities. The neural networks have woven together fragments of imagination and logic, creating something entirely new...</div>
+      <div class="ok" style="margin-top: 8px;">[STATS] 247 tokens • 1.2s latency • GPT-Meta-4</div>
+    `;
+    notify('◉ Text generation complete', 'success');
+    logToAgentConsole('[PROMPT] Text generated: ' + prompt.substring(0, 40), 'ok');
+  }, 1500);
+}
+
+function generateImage() {
+  const prompt = document.getElementById('image-prompt').value.trim();
+  const output = document.getElementById('image-output');
+  if (!prompt) { notify('Visual directive required', 'error'); return; }
+  output.innerHTML = '<div class="loading-bar w-full"></div><div class="info">Rendering visual matrix...</div>';
+  setTimeout(() => {
+    output.innerHTML = `
+      <div class="ok">[OK] Image rendered successfully.</div>
+      <div class="info">[INPUT] "${prompt.substring(0, 60)}${prompt.length > 60 ? '...' : ''}"</div>
+      <div class="info">[FORMAT] 1024x1024 • Photorealistic • PNG</div>
+      <div class="info">[STATS] 4.2s render • 2.4MB output</div>
+      <button class="btn-hud text-xs mt-3" onclick="notify('Image downloaded', 'success')">◉ DOWNLOAD</button>
+    `;
+    notify('◉ Image rendered successfully', 'success');
+    logToAgentConsole('[PROMPT] Image rendered: ' + prompt.substring(0, 40), 'ok');
+  }, 2000);
+}
+
+function generateVideo() {
+  const prompt = document.getElementById('video-prompt').value.trim();
+  const output = document.getElementById('video-output');
+  if (!prompt) { notify('Video directive required', 'error'); return; }
+  output.innerHTML = '<div class="loading-bar w-full"></div><div class="info">Rendering frames (24fps)...</div>';
+  setTimeout(() => {
+    output.innerHTML = `
+      <div class="ok">[OK] Video rendered successfully.</div>
+      <div class="info">[INPUT] "${prompt.substring(0, 60)}${prompt.length > 60 ? '...' : ''}"</div>
+      <div class="info">[FORMAT] 8s • 1080p • 24fps • MP4</div>
+      <div class="info">[STATS] 192 frames • 18.4MB output</div>
+      <button class="btn-hud text-xs mt-3" onclick="notify('Video exported', 'success')">◉ EXPORT</button>
+    `;
+    notify('◉ Video rendered successfully', 'success');
+    logToAgentConsole('[PROMPT] Video rendered: ' + prompt.substring(0, 40), 'ok');
+  }, 2500);
+}
+
+function generateObject() {
+  const prompt = document.getElementById('object-prompt').value.trim();
+  const output = document.getElementById('object-output');
+  if (!prompt) { notify('3D directive required', 'error'); return; }
+  output.innerHTML = '<div class="loading-bar w-full"></div><div class="info">Generating 3D mesh...</div>';
+  setTimeout(() => {
+    output.innerHTML = `
+      <div class="ok">[OK] 3D object generated.</div>
+      <div class="info">[INPUT] "${prompt.substring(0, 60)}${prompt.length > 60 ? '...' : ''}"</div>
+      <div class="info">[FORMAT] 10k polys • GLTF • Textured</div>
+      <div class="info">[STATS] 6.8s generation • 4.1MB</div>
+      <div class="flex gap-2 mt-3">
+        <button class="btn-hud text-xs" onclick="notify('Exported as GLTF', 'success')">◉ GLTF</button>
+        <button class="btn-hud text-xs" onclick="notify('Exported as OBJ', 'success')">◉ OBJ</button>
+        <button class="btn-hud text-xs" onclick="notify('Exported as FBX', 'success')">◉ FBX</button>
+      </div>
+    `;
+    notify('◉ 3D object generated', 'success');
+    logToAgentConsole('[PROMPT] 3D object: ' + prompt.substring(0, 40), 'ok');
+  }, 2200);
+}
+
+// ========== VERSED'ai ==========
+function launchVersedApp(name) {
+  notify(`◉ Launching ${name}...`, 'info');
+  logToAgentConsole(`[VERSED'ai] Launching: ${name}`, 'info');
+  setTimeout(() => notify(`◉ ${name} active`, 'success'), 1200);
+}
+
+// ========== ECONOMY ==========
+document.getElementById('biometric-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  notify('◉ Enrolled in MyBUY\'o biometric payments', 'success');
+  logToAgentConsole('[ECONOMY] Biometric enrollment complete', 'ok');
+  e.target.reset();
+});
+
+function launchEcon(name) {
+  notify(`◉ Launching ${name}...`, 'info');
+  logToAgentConsole(`[ECONOMY] Launching: ${name}`, 'info');
+  setTimeout(() => notify(`◉ ${name} active`, 'success'), 1200);
+}
+
+// ========== ENTERPRISE ==========
+document.getElementById('enterprise-form').addEventListener('submit', (e) => {
+  e.preventDefault();
+  notify('◉ Enterprise demo request submitted', 'success');
+  logToAgentConsole('[ENTERPRISE] Demo request submitted', 'ok');
+  e.target.reset();
+});
+
+function deployBundle(name) {
+  notify(`◉ Deploying ${name} bundle...`, 'info');
+  logToAgentConsole(`[ENTERPRISE] Deploying: ${name}`, 'info');
+  setTimeout(() => {
+    notify(`◉ ${name} bundle deployed successfully`, 'success');
+    logToAgentConsole(`[ENTERPRISE] ${name} deployed`, 'ok');
+  }, 1500);
+}
+
+// ========== CLOUD ==========
+function launchCloud(name) {
+  notify(`◉ Launching ${name} environment...`, 'info');
+  logToAgentConsole(`[CLOUD] Launching: ${name}`, 'info');
+  setTimeout(() => notify(`◉ ${name} active`, 'success'), 1500);
+}
+
+// ========== TOOLS ==========
+function launchTool(name, url) {
+  notify(`◉ Launching ${name}...`, 'info');
+  logToAgentConsole(`[TOOLS] Launching: ${name}`, 'info');
+  setTimeout(() => {
+    if (url) window.open(url, '_blank');
+    notify(`◉ ${name} opened in new tab`, 'success');
+  }, 800);
+}
+
+// ========== REALM LAUNCH ==========
+function launchRealm(realm) {
+  notify(`◉ Initiating spatial jump to ${realm}...`, 'info');
+  logToAgentConsole(`[PORTAL] Spatial jump: ${realm}`, 'warn');
+  setTimeout(() => {
+    notify(`◉ Jump to ${realm} successful`, 'success');
+    logToAgentConsole(`[PORTAL] ${realm} online`, 'ok');
+  }, 2000);
+}
+
+// ========== LATENCY SIMULATION ==========
+setInterval(() => {
+  const lat = 8 + Math.floor(Math.random() * 15);
+  document.getElementById('lat-display').textContent = lat + 'ms';
+}, 2000);
+
+// ========== INIT ==========
+initSpace();
+setTimeout(() => notify('◉ Neural link established. Welcome, Operator.', 'success'), 1000);
+</script>
+
 </body>
 </html>
