@@ -1,398 +1,325 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Agentik AI - Sovereign Infrastructure</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <style>
-    body { visibility: hidden; }
-    body.loaded { visibility: visible; }
-    @keyframes fade-in-up { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-fade-up { animation: fade-in-up 0.6s ease-out forwards; opacity: 0; }
-    .delay-100 { animation-delay: 0.1s; }
-    .delay-200 { animation-delay: 0.2s; }
-    .delay-300 { animation-delay: 0.3s; }
-    .delay-400 { animation-delay: 0.4s; }
-    ::-webkit-scrollbar { width: 6px; }
-    ::-webkit-scrollbar-track { background: #0f172a; }
-    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-  </style>
-</head>
-<body class="bg-slate-950 text-slate-200 font-sans min-h-screen selection:bg-emerald-500/30">
-  
-  <!-- Navigation -->
-  <nav class="fixed top-0 w-full z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between h-16 items-center">
-        <div class="flex items-center gap-2">
-          <div class="w-8 h-8 bg-gradient-to-tr from-emerald-500 to-cyan-500 rounded-lg flex items-center justify-center">
-            <i data-lucide="cpu" class="text-white w-5 h-5"></i>
-          </div>
-          <span class="font-bold text-xl tracking-tight text-white">AGENTIK <span class="text-emerald-500">AI</span></span>
-        </div>
-        <div class="hidden md:flex items-center gap-8 text-sm font-medium text-slate-400">
-          <a href="#risk" class="hover:text-emerald-400 transition">The Risk</a>
-          <a href="#solution" class="hover:text-emerald-400 transition">The System</a>
-          <a href="#industries" class="hover:text-emerald-400 transition">Industries</a>
-          <a href="#pricing" class="hover:text-emerald-400 transition">Investment</a>
-          <button class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-full transition flex items-center gap-2">
-            Book an Audit <i data-lucide="arrow-right" class="w-4 h-4"></i>
-          </button>
-        </div>
-        <div class="md:hidden">
-          <button id="menu-btn" class="text-slate-300 p-2">
-            <i data-lucide="menu" class="w-6 h-6"></i>
-          </button>
+<html lang="en">
+  <head>
+  <base href="https://github.io">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="refresh" content="0; url=https://docs.github.com/pages" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link type="text/css" href="/css/pages.css" media="all" rel="stylesheet">
+
+    <!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>GitHub Pages | Websites for you and your projects, hosted directly from your GitHub repository. Just edit, push, and your changes are live.</title>
+<meta name="generator" content="Jekyll v3.10.0" />
+<meta property="og:title" content="GitHub Pages" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Websites for you and your projects, hosted directly from your GitHub repository. Just edit, push, and your changes are live." />
+<meta property="og:description" content="Websites for you and your projects, hosted directly from your GitHub repository. Just edit, push, and your changes are live." />
+<link rel="canonical" href="https://pages.github.com/" />
+<meta property="og:url" content="https://pages.github.com/" />
+<meta property="og:site_name" content="GitHub Pages" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="GitHub Pages" />
+<meta name="twitter:site" content="@github" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebSite","description":"Websites for you and your projects, hosted directly from your GitHub repository. Just edit, push, and your changes are live.","headline":"GitHub Pages","name":"GitHub Pages","url":"https://pages.github.com/"}</script>
+<!-- End Jekyll SEO tag -->
+
+  </head>
+
+  <body class="home ">
+
+
+<section id="hero-spot" class="hero-spot">
+    <a href="/"><img src="/images/logo.svg" alt="GitHub Pages" class="logo" /></a>
+
+    <h1>Websites for you and your projects.</h1>
+    <h2>Hosted directly from your <a href="https://github.com">GitHub repository</a>. Just edit, push, and your changes are live.</h2>
+
+    <a href="https://help.github.com/pages/" class="help-link">Pages Help</a>
+
+    <div id="slideshow">
+      <img src="/images/slideshow/bootstrap.png" alt="Bootstrap" class="slide active" width="893" />
+    </div>
+</section>
+
+<section id="tutorial" class="tutorial">
+  <h1>Ready to get started? Build your own site from scratch or generate one for your project.</h1>
+  <h2>You get one site per GitHub account and organization, <br />and unlimited project sites. Let‘s get started.</h2>
+
+  <ul class="tabs">
+    <li><a href="#user-site" class="selected">User or organization site</a></li>
+    <li><a href="#project-site">Project site</a></li>
+  </ul>
+
+  <!-- ### Start of tutorials -->
+  <ul id="user-site" class="tutorial-list wrapper active">
+    <li id="create-repo-step" class="image-right">
+      <h4>Create a repository</h4>
+      <p>Head over to <a href="https://github.com">GitHub</a> and <a data-proofer-ignore="true" href="https://github.com/new">create a new public repository</a> named <em>username</em>.github.io, where <em>username</em> is your username (or organization name) on GitHub.</p>
+
+      <p class="details">If the first part of the repository doesn’t exactly match your username, it won’t work, so make sure to get it right.</p>
+    </li>
+
+    <li class="question">
+      <h4>What git client are you using?</h4>
+      <ul class="tabs">
+        <li><a id="option-terminal" href="#terminal-step-1" class="selected">A terminal</a></li>
+        <li><a id="option-desktop" href="#setup-in-desktop">GitHub Desktop</a></li>
+        <li><a id="option-newuser" href="#new-user-step-1">I don't know</a></li>
+      </ul>
+    </li>
+
+    <li id="new-user-step-1" class="option-newuser">
+      <h4>Download GitHub Desktop</h4>
+      <p>GitHub Desktop is a great way to use Git and GitHub on macOS and Windows.</p>
+
+      <a class="desktop-download" href="https://desktop.github.com"><span class="icon"></span>Download GitHub Desktop</a>
+
+      <img src="images/dashboard@2x.png" width="1054" alt="GitHub Desktop screenshot" class="full-size" />
+    </li>
+
+    <li id="terminal-step-1" class="option-terminal">
+      <h4>Clone the repository</h4>
+      <p>Go to the folder where you want to store your project, and clone the new repository:</p>
+
+      <div class="terminal">
+        <div class="header"></div>
+        <div class="shell">
+          <p><span class="path">~</span><span class="prompt">$</span>git clone https://github.com/<em>username</em>/<em>username</em>.github.io</p>
         </div>
       </div>
-    </div>
-    <div id="mobile-menu" class="md:hidden hidden bg-slate-900 border-b border-slate-800 p-4 space-y-4">
-      <a href="#risk" class="block text-slate-300 hover:text-emerald-400" onclick="document.getElementById('mobile-menu').classList.add('hidden')">The Risk</a>
-      <a href="#solution" class="block text-slate-300 hover:text-emerald-400" onclick="document.getElementById('mobile-menu').classList.add('hidden')">The System</a>
-      <a href="#industries" class="block text-slate-300 hover:text-emerald-400" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Industries</a>
-      <a href="#pricing" class="block text-slate-300 hover:text-emerald-400" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Investment</a>
-    </div>
-  </nav>
+    </li>
 
-  <!-- Hero Section -->
-  <section class="pt-32 pb-20 px-4 relative overflow-hidden">
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-emerald-500/10 blur-[120px] rounded-full pointer-events-none"></div>
-    <div class="max-w-5xl mx-auto text-center relative z-10">
-      <div class="animate-fade-up">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-700 text-emerald-400 text-xs font-mono mb-6">
-          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          PRIVATE AI INFRASTRUCTURE · GREENSBORO, NC
-        </div>
-        <h1 class="text-5xl md:text-7xl font-bold text-white tracking-tight mb-6">
-          Your data is too sensitive <br />
-          <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">for Cloud AI.</span>
-        </h1>
-        <p class="text-xl text-slate-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-          We deploy sovereign AI infrastructure on hardware <em>you own</em>. <br/>
-          For law firms, medical practices, and financial advisors who can't afford a data leak.
-        </p>
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <button class="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition shadow-lg shadow-emerald-900/20 flex items-center justify-center gap-2">
-            Book a Free 15-Min Call <i data-lucide="arrow-right" class="w-5 h-5"></i>
-          </button>
-          <button class="w-full sm:w-auto px-8 py-4 bg-slate-800 hover:bg-slate-700 text-slate-200 font-medium rounded-lg transition border border-slate-700">
-            AI Operations Audit: $3,500
-          </button>
+    <li id="setup-in-desktop" class="option-desktop image-right">
+      <h4>Clone the repository</h4>
+      <p>Click the "Set up in Desktop" button. When the GitHub desktop app opens, save the project.</p>
+
+      <p class="details">If the app doesn't open, launch it and clone the repository from the app.</p>
+    </li>
+
+    <li id="setup-in-desktop" class="option-newuser image-right">
+      <h4>Clone the repository</h4>
+      <p>After finishing the installation, head back to GitHub.com and refresh the page. Click the "Set up in Desktop" button. When the GitHub desktop app opens, save the project.</p>
+
+      <p class="details">If the app doesn't open, launch it and clone the repository from the app.</p>
+    </li>
+
+    <li class="option-terminal">
+      <h4>Hello World</h4>
+      <p>Enter the project folder and add an index.html file:</p>
+
+      <div class="terminal">
+        <div class="header"></div>
+        <div class="shell">
+          <p><span class="path">~</span><span class="prompt">$</span>cd <em>username</em>.github.io</p>
+          <p><span class="path">~</span><span class="prompt">$</span>echo "Hello World" > index.html</p>
         </div>
       </div>
+    </li>
 
-      <!-- Terminal Preview -->
-      <div class="mt-16 bg-slate-900 border border-slate-700 rounded-xl overflow-hidden shadow-2xl max-w-3xl mx-auto text-left font-mono text-sm animate-fade-up delay-400">
-        <div class="flex items-center gap-2 px-4 py-3 bg-slate-800 border-b border-slate-700">
-          <div class="w-3 h-3 rounded-full bg-red-500"></div>
-          <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-          <div class="w-3 h-3 rounded-full bg-green-500"></div>
-          <span class="ml-2 text-slate-500 text-xs">agentik-deployment — bash — 80x24</span>
-        </div>
-        <div class="p-6 space-y-2 text-slate-300">
-          <p><span class="text-emerald-400">$</span> initializing sovereign-node-01...</p>
-          <p class="text-slate-500">Loading local model: qwen2.5-72b-instruct (quantized)</p>
-          <p><span class="text-emerald-400">✓</span> Network isolated. Zero egress detected.</p>
-          <p><span class="text-emerald-400">✓</span> HIPAA Compliance module: Active</p>
-          <p><span class="text-emerald-400">✓</span> Local Vector Database: Mounted</p>
-          <p><span class="text-emerald-400">✓</span> Hybrid Routing: Privileged docs → Local | General Research → Cloud</p>
-          <p class="text-white mt-2 font-bold">Status: LIVE. Client data on external servers: 0 bytes.</p>
+    <li class="option-desktop option-newuser">
+      <h4>Create an index file</h4>
+      <p>Grab your favorite text editor and add an index.html file to your project:</p>
+
+      <div class="terminal">
+        <div class="header">index.html</div>
+        <code class="shell">
+          <pre>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;body&gt;
+&lt;h1&gt;Hello World&lt;/h1&gt;
+&lt;p&gt;I'm hosted with GitHub Pages.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+      </code>
+    </li>
+
+    <li class="option-terminal">
+      <h4>Push it</h4>
+      <p>Add, commit, and push your changes:</p>
+
+      <div class="terminal">
+        <div class="header"></div>
+        <div class="shell">
+          <p><span class="path">~</span><span class="prompt">$</span>git add --all</p>
+          <p><span class="path">~</span><span class="prompt">$</span>git commit -m "Initial commit"</p>
+          <p><span class="path">~</span><span class="prompt">$</span>git push -u origin main</p>
         </div>
       </div>
-    </div>
-  </section>
+    </li>
 
-  <!-- Risk Section -->
-  <section id="risk" class="py-20 bg-slate-900 border-y border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="grid md:grid-cols-2 gap-12 items-center animate-fade-up">
-        <div>
-          <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">The Risk</h2>
-          <p class="text-slate-400 text-lg mb-6 leading-relaxed">
-            Right now, someone on your team is putting sensitive data into ChatGPT. Not because they're careless — but because they're moving fast.
-          </p>
-          <p class="text-slate-400 mb-8 leading-relaxed">
-            Every time a paralegal uploads a contract or a doctor pastes patient notes into a cloud model, that data leaves your building. You lose control. You lose compliance. You lose trust.
-          </p>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="flex items-start gap-3 bg-slate-950 p-4 rounded-lg border border-red-900/30">
-              <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 shrink-0 mt-1"></i>
-              <span class="text-slate-200 font-medium text-sm">HIPAA violations start at $100K</span>
-            </div>
-            <div class="flex items-start gap-3 bg-slate-950 p-4 rounded-lg border border-red-900/30">
-              <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 shrink-0 mt-1"></i>
-              <span class="text-slate-200 font-medium text-sm">Attorney-client privilege breach</span>
-            </div>
-            <div class="flex items-start gap-3 bg-slate-950 p-4 rounded-lg border border-red-900/30">
-              <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 shrink-0 mt-1"></i>
-              <span class="text-slate-200 font-medium text-sm">Six-figure NDA lawsuits</span>
-            </div>
-            <div class="flex items-start gap-3 bg-slate-950 p-4 rounded-lg border border-red-900/30">
-              <i data-lucide="alert-triangle" class="w-5 h-5 text-red-500 shrink-0 mt-1"></i>
-              <span class="text-slate-200 font-medium text-sm">Irreversible reputation damage</span>
-            </div>
-          </div>
-        </div>
-        <div class="relative">
-          <div class="absolute inset-0 bg-gradient-to-tr from-red-500/10 to-transparent rounded-2xl blur-xl"></div>
-          <div class="bg-slate-950 p-8 rounded-2xl border border-slate-800 relative">
-            <h3 class="text-xl font-bold text-white mb-4">The Cost of Getting It Wrong</h3>
-            <div class="space-y-6">
-              <div class="flex justify-between items-center pb-4 border-b border-slate-800">
-                <span class="text-slate-400">HIPAA Violation</span>
-                <span class="font-bold text-red-400">$100K – $1.9M / incident</span>
-              </div>
-              <div class="flex justify-between items-center pb-4 border-b border-slate-800">
-                <span class="text-slate-400">Client Data Exposure</span>
-                <span class="font-bold text-red-400">Unquantifiable</span>
-              </div>
-              <div class="flex justify-between items-center pb-4 border-b border-slate-800">
-                <span class="text-slate-400">Privilege Violation</span>
-                <span class="font-bold text-red-400">Malpractice, Disbarment</span>
-              </div>
-              <div class="flex justify-between items-center">
-                <span class="text-slate-400">Agentik AI Deployment</span>
-                <span class="font-bold text-emerald-400">Peace of mind</span>
-              </div>
-            </div>
-          </div>
-        </div>
+    <li class="option-desktop option-newuser">
+      <h4>Commit &amp; publish</h4>
+
+      <p>Enter the repository, commit your changes, and press the publish button.</p>
+
+      <img src="images/desktop-demo@2x.gif" width="841" alt="Demonstration of steps required to create the initial commit and publish the repository in GitHub Desktop" class="macos-drop-shadow" />
+    </li>
+
+    <li class="option-all">
+      <h4>…and you're done!</h4>
+      <p>Fire up a browser and go to <strong>https://<em>username</em>.github.io</strong>.</p>
+      <div class="hero-octicon">
+        <span class="mega-octicon octicon-check"></span>
       </div>
-    </div>
-  </section>
+    </li>
+  </ul>
+  <!-- End of user site tutorial -->
 
-  <!-- System Section -->
-  <section id="solution" class="py-20 px-4">
-    <div class="max-w-7xl mx-auto">
-      <div class="text-center max-w-3xl mx-auto mb-16 animate-fade-up">
-        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4">The System</h2>
-        <p class="text-lg text-slate-400">
-          A private AI infrastructure. On hardware you own. In your building.
-          <br />We deploy a secure node running open-source LLMs. Sensitive data stays local.
-        </p>
+  <!-- Project Site tutorial -->
+  <ul id="project-site" class="tutorial-list wrapper">
+    <li class="question">
+      <h4>Use a theme, or start from scratch?</h4>
+      <p>You have the option to start with one of the pre-built themes,
+        <br>or to create a site from scratch.
+      <ul class="tabs">
+        <li><a id="option-generate" href="#generate-step-1" class="selected">Choose a theme</a></li>
+        <li><a id="option-vanilla" href="#vanilla-step-1">Start from scratch</a></li>
+      </ul>
+    </li>
+
+    <li id="generate-step-1" class="option-generate">
+      <h4>Repository Settings</h4>
+      <p>Head over to <a href="https://github.com/">GitHub.com</a> and create a new repository, or go to an existing one.
+        <br><strong>Click on the Settings tab</strong>.</p>
+
+      <img src="images/repo-settings@2x.png" width="720" alt="Settings for a repository" />
+    </li>
+
+    <li class="option-generate">
+      <h4>Theme chooser</h4>
+      <p>Scroll down to the <strong>GitHub Pages</strong> section. Press <strong>Choose a theme</strong>.</p>
+      <img src="images/launch-theme-chooser@2x.png" width="720" alt="Automatic Generator button on GitHub.com, Settings" />
+    </li>
+
+    <li class="option-generate">
+      <h4>Pick a theme</h4>
+      <p>Choose one of the themes from the carousel at the top.
+      <br>When you're done, click <strong>Select theme</strong> on the right.</p>
+
+      <img src="images/theme-chooser@2x.png" class="full-size" width="720" alt="Choose layout" />
+    </li>
+
+    <li class="option-generate">
+      <h4>Edit content</h4>
+      <p>Use the editor to add content to your site.</p>
+      <img class="full-size" src="images/code-editor@2x.png" width="720" alt="Add content to your GitHub Pages site" />
+    </li>
+
+    <li class="option-generate">
+      <h4>Commit</h4>
+      <p>Enter a commit comment and click on <strong>Commit changes</strong> below the editor.</p>
+      <img class="full-size" src="images/commit-edits@2x.png" width="720" alt="Commit Markdown content to your repository" />
+    </li>
+
+    <!-- Start of vanilla sub tutorial -->
+    <li id="vanilla-step-1" class="option-vanilla">
+      <h4>Create an index file</h4>
+      <p>Head over to <a href="https://github.com/">GitHub.com</a> and <a data-proofer-ignore="true" href="https://github.com/new">create a new repository</a>, or go to an existing one.
+      <br />Click on the <strong>Create new file</strong> button.</p>
+
+      <img src="images/new-create-file@2x.png" width="720" alt="Create a file in your repository" />
+    </li>
+
+    <li class="option-vanilla">
+      <h4>Hello World</h4>
+      <p>Name the file <code>index.html</code> and type some HTML content into the editor.</p>
+
+      <img src="images/new-index-html@2x.png" width="720" alt="Hello World on GitHub.com" />
+    </li>
+
+    <li class="option-vanilla">
+      <h4>Commit the file</h4>
+      <p>Scroll to the bottom of the page, write a commit message, and commit the new file.</p>
+
+      <img src="images/new-commit-file@2x.png" width="720" alt="Commit the file" />
+    </li>
+
+    <li class="option-vanilla">
+      <h4>Repository Settings</h4>
+      <p><strong>Click on the Settings tab</strong> and scroll down to the GitHub Pages section.
+      <br />Then select the <strong>main branch</strong> source and click on the <strong>Save</strong> button.</p>
+
+      <img src="images/source-setting@2x.png" width="720" alt="GitHub Pages Source Setting" />
+    </li>
+
+    <li class="option-all">
+      <h4>…and you're done!</h4>
+      <p>Fire up a browser and go to <strong>http://<em>username</em>.github.io/<em>repository</em></strong>.</p>
+      <div class="hero-octicon">
+        <span class="mega-octicon octicon-check"></span>
       </div>
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-emerald-500/30 transition group animate-fade-up delay-100">
-          <div class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center mb-4 group-hover:scale-110 transition duration-300">
-            <i data-lucide="file-text" class="w-6 h-6 text-emerald-400"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-2">Contract & Document Review</h3>
-          <p class="text-slate-400 mb-4 text-sm leading-relaxed">Upload a contract, get a full analysis in 30 seconds. Flags risks, deviations, and summaries. 100% local.</p>
-          <div class="text-xs font-mono text-emerald-500/80 tracking-wide">LAW · REAL ESTATE · INSURANCE</div>
-        </div>
-        <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-emerald-500/30 transition group animate-fade-up delay-200">
-          <div class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center mb-4 group-hover:scale-110 transition duration-300">
-            <i data-lucide="phone" class="w-6 h-6 text-cyan-400"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-2">AI Receptionist</h3>
-          <p class="text-slate-400 mb-4 text-sm leading-relaxed">Answers calls 24/7, qualifies callers, runs intake, and books appointments. Pushes data to your CRM.</p>
-          <div class="text-xs font-mono text-emerald-500/80 tracking-wide">ALL INDUSTRIES</div>
-        </div>
-        <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-emerald-500/30 transition group animate-fade-up delay-300">
-          <div class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center mb-4 group-hover:scale-110 transition duration-300">
-            <i data-lucide="users" class="w-6 h-6 text-purple-400"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-2">Client Intake Automation</h3>
-          <p class="text-slate-400 mb-4 text-sm leading-relaxed">Extracts key facts, checks conflicts, classifies matters, and creates files. 45 mins → 5 mins.</p>
-          <div class="text-xs font-mono text-emerald-500/80 tracking-wide">MEDICAL · FINANCIAL · LAW</div>
-        </div>
-        <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-emerald-500/30 transition group animate-fade-up delay-100">
-          <div class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center mb-4 group-hover:scale-110 transition duration-300">
-            <i data-lucide="database" class="w-6 h-6 text-blue-400"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-2">Institutional Memory</h3>
-          <p class="text-slate-400 mb-4 text-sm leading-relaxed">Search your firm's entire history. Meeting transcripts, case notes, and decisions indexed locally.</p>
-          <div class="text-xs font-mono text-emerald-500/80 tracking-wide">ALL INDUSTRIES</div>
-        </div>
-        <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-emerald-500/30 transition group animate-fade-up delay-200">
-          <div class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center mb-4 group-hover:scale-110 transition duration-300">
-            <i data-lucide="briefcase" class="w-6 h-6 text-orange-400"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-2">Document Drafting</h3>
-          <p class="text-slate-400 mb-4 text-sm leading-relaxed">Generate drafts based on your own templates. Sensitive docs stay local. Generic templates use cloud AI.</p>
-          <div class="text-xs font-mono text-emerald-500/80 tracking-wide">LAW · ACCOUNTING · HR</div>
-        </div>
-        <div class="bg-slate-900/50 border border-slate-800 rounded-xl p-6 hover:border-emerald-500/30 transition group animate-fade-up delay-300">
-          <div class="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center mb-4 group-hover:scale-110 transition duration-300">
-            <i data-lucide="clock" class="w-6 h-6 text-red-400"></i>
-          </div>
-          <h3 class="text-xl font-bold text-white mb-2">Compliance Monitoring</h3>
-          <p class="text-slate-400 mb-4 text-sm leading-relaxed">Tracks deadlines, statute of limitations, and regulatory filings. Alerts fire at 30, 7, and 24 hours.</p>
-          <div class="text-xs font-mono text-emerald-500/80 tracking-wide">LAW · FINANCIAL · GOVT</div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </li>
+  </ul>
 
-  <!-- Industries -->
-  <section id="industries" class="py-20 bg-slate-900 border-y border-slate-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <h2 class="text-3xl font-bold text-white mb-10 text-center animate-fade-up">Built for industries where data privacy isn't optional</h2>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex items-center gap-3 hover:border-emerald-500/50 transition cursor-default animate-fade-up delay-100">
-          <i data-lucide="scale" class="w-5 h-5 text-emerald-400"></i>
-          <div><div class="text-white font-medium text-sm">Law Firms</div><div class="text-slate-500 text-xs">Privilege Protection</div></div>
-        </div>
-        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex items-center gap-3 hover:border-emerald-500/50 transition cursor-default animate-fade-up delay-100">
-          <i data-lucide="stethoscope" class="w-5 h-5 text-emerald-400"></i>
-          <div><div class="text-white font-medium text-sm">Medical Practices</div><div class="text-slate-500 text-xs">HIPAA Compliance</div></div>
-        </div>
-        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex items-center gap-3 hover:border-emerald-500/50 transition cursor-default animate-fade-up delay-200">
-          <i data-lucide="bar-chart-3" class="w-5 h-5 text-emerald-400"></i>
-          <div><div class="text-white font-medium text-sm">Financial Advisors</div><div class="text-slate-500 text-xs">SEC / FINRA</div></div>
-        </div>
-        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex items-center gap-3 hover:border-emerald-500/50 transition cursor-default animate-fade-up delay-200">
-          <i data-lucide="building" class="w-5 h-5 text-emerald-400"></i>
-          <div><div class="text-white font-medium text-sm">Govt Contractors</div><div class="text-slate-500 text-xs">CUI / CMMC</div></div>
-        </div>
-        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex items-center gap-3 hover:border-emerald-500/50 transition cursor-default animate-fade-up delay-300">
-          <i data-lucide="shield" class="w-5 h-5 text-emerald-400"></i>
-          <div><div class="text-white font-medium text-sm">Insurance</div><div class="text-slate-500 text-xs">Claims Security</div></div>
-        </div>
-        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex items-center gap-3 hover:border-emerald-500/50 transition cursor-default animate-fade-up delay-300">
-          <i data-lucide="briefcase" class="w-5 h-5 text-emerald-400"></i>
-          <div><div class="text-white font-medium text-sm">Construction</div><div class="text-slate-500 text-xs">Bid Protection</div></div>
-        </div>
-        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex items-center gap-3 hover:border-emerald-500/50 transition cursor-default animate-fade-up delay-100">
-          <i data-lucide="database" class="w-5 h-5 text-emerald-400"></i>
-          <div><div class="text-white font-medium text-sm">Real Estate</div><div class="text-slate-500 text-xs">Transaction Security</div></div>
-        </div>
-        <div class="bg-slate-950 p-4 rounded-lg border border-slate-800 flex items-center gap-3 hover:border-emerald-500/50 transition cursor-default animate-fade-up delay-200">
-          <i data-lucide="users" class="w-5 h-5 text-emerald-400"></i>
-          <div><div class="text-white font-medium text-sm">HR & Staffing</div><div class="text-slate-500 text-xs">EEOC / ADA</div></div>
-        </div>
-      </div>
-    </div>
-  </section>
+</section>
+<!-- End of tutorial section -->
 
-  <!-- Process -->
-  <section class="py-20 px-4">
-    <div class="max-w-6xl mx-auto">
-      <h2 class="text-3xl md:text-4xl font-bold text-white mb-16 text-center animate-fade-up">From Audit to Production in Weeks</h2>
-      <div class="grid md:grid-cols-4 gap-8">
-        <div class="relative bg-slate-900 border border-slate-800 rounded-xl p-6 animate-fade-up delay-100">
-          <div class="text-4xl font-bold text-slate-800 mb-4">01</div>
-          <h3 class="text-xl font-bold text-white mb-1">AI Operations Audit</h3>
-          <div class="text-emerald-400 font-bold mb-3">$3,500</div>
-          <p class="text-slate-400 text-sm mb-4 leading-relaxed">90-min discovery + 48hr architecture sprint. You get a written report, security assessment, AI usage policy, and a working prototype.</p>
-          <div class="inline-block px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 font-mono">~3 days</div>
-        </div>
-        <div class="relative bg-slate-900 border border-slate-800 rounded-xl p-6 animate-fade-up delay-200">
-          <div class="text-4xl font-bold text-slate-800 mb-4">02</div>
-          <h3 class="text-xl font-bold text-white mb-1">Build & Deploy</h3>
-          <div class="text-emerald-400 font-bold mb-3">From $18,000</div>
-          <p class="text-slate-400 text-sm mb-4 leading-relaxed">We deploy hardware, configure local LLMs, build your custom portal, and integrate with your CRM. Audit fee credited.</p>
-          <div class="inline-block px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 font-mono">1-2 weeks</div>
-        </div>
-        <div class="relative bg-slate-900 border border-slate-800 rounded-xl p-6 animate-fade-up delay-300">
-          <div class="text-4xl font-bold text-slate-800 mb-4">03</div>
-          <h3 class="text-xl font-bold text-white mb-1">14-Day Hypercare</h3>
-          <div class="text-emerald-400 font-bold mb-3">Included</div>
-          <p class="text-slate-400 text-sm mb-4 leading-relaxed">Dedicated support, prompt tuning, and workflow expansion. We turn the new tool into 'how did we work without this'.</p>
-          <div class="inline-block px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 font-mono">14 days</div>
-        </div>
-        <div class="relative bg-slate-900 border border-slate-800 rounded-xl p-6 animate-fade-up delay-400">
-          <div class="text-4xl font-bold text-slate-800 mb-4">04</div>
-          <h3 class="text-xl font-bold text-white mb-1">Managed Services</h3>
-          <div class="text-emerald-400 font-bold mb-3">$2,997/mo</div>
-          <p class="text-slate-400 text-sm mb-4 leading-relaxed">Monthly model updates, security patching, and performance reports. The system gets smarter every month.</p>
-          <div class="inline-block px-2 py-1 bg-slate-800 rounded text-xs text-slate-300 font-mono">Ongoing</div>
-        </div>
-      </div>
-    </div>
-  </section>
+<section id="next-steps">
+  <h1>Now that you’re up and running, here are a few things you should know.</h1>
 
-  <!-- Pricing -->
-  <section id="pricing" class="py-20 bg-slate-900 border-y border-slate-800">
-    <div class="max-w-5xl mx-auto px-4">
-      <h2 class="text-3xl font-bold text-white mb-10 text-center animate-fade-up">Your Investment</h2>
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="bg-slate-950 border border-slate-800 rounded-xl p-8 flex flex-col animate-fade-up delay-100">
-          <div class="mb-6">
-            <h3 class="text-xl font-bold text-white">Option A: AI Operations Audit</h3>
-            <div class="text-3xl font-bold text-emerald-400 mt-2">$3,500</div>
-            <p class="text-slate-500 text-sm mt-1">Credited toward build</p>
-          </div>
-          <ul class="space-y-3 mb-8 flex-1">
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> Customized intake questionnaire</li>
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> 90-minute discovery session</li>
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> 48-hour research & architecture sprint</li>
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> Written AI Operations Report</li>
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> Security assessment & data classification</li>
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> Working prototype of first automation</li>
-          </ul>
-          <button class="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white font-medium rounded-lg transition">Book the Audit</button>
-        </div>
-        <div class="bg-slate-950 border-2 border-emerald-500/50 rounded-xl p-8 flex flex-col relative animate-fade-up delay-200">
-          <div class="absolute top-0 right-0 bg-emerald-500 text-slate-950 text-xs font-bold px-3 py-1 rounded-bl-lg">RECOMMENDED</div>
-          <div class="mb-6">
-            <h3 class="text-xl font-bold text-white">Option B: Audit + On-Site</h3>
-            <div class="text-3xl font-bold text-emerald-400 mt-2">$5,000</div>
-            <p class="text-slate-500 text-sm mt-1">Full audit + physical network assessment</p>
-          </div>
-          <ul class="space-y-3 mb-8 flex-1">
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> Everything in Option A</li>
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> On-site infrastructure assessment</li>
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> Hardware placement & security review</li>
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> Network architecture planning</li>
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> In-person delivery to leadership</li>
-            <li class="flex items-start gap-2 text-sm text-slate-300"><i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i> Full audit fee credited toward build</li>
-          </ul>
-          <button class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition">Book On-Site Assessment</button>
-        </div>
-      </div>
-      <p class="text-center text-slate-500 mt-8 text-sm">7-day money-back guarantee. Private AI deployments start at $18,000.</p>
-    </div>
-  </section>
+  <ul class="next-steps wrapper">
+    <li class="jekyll">
+      <a class="hero-octicon" href="https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/about-github-pages-and-jekyll">
+        <span class="mega-octicon octicon-pencil"></span>
+      </a>
+      <h4><a href="https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/about-github-pages-and-jekyll">Blogging with Jekyll</a></h4>
+      <p>Using <a href="https://jekyllrb.com">Jekyll</a>, you can blog using beautiful Markdown syntax, and without having to deal with any databases. <a href="https://jekyllrb.com/docs/">Learn how to set up Jekyll</a>.</p>
+    </li>
+    <li class="custom-urls">
+      <a class="hero-octicon" href="https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site">
+        <span class="mega-octicon octicon-link"></span>
+      </a>
+      <h4><a href="https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site">Custom URLs</a></h4>
+      <p>Want to use your own custom domain for a GitHub Pages site? Just create a file named CNAME  and include your URL. <a href="https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site">Read more</a>.</p>
+    </li>
+    <li class="guides">
+      <a class="hero-octicon" href="https://docs.github.com/pages">
+        <span class="mega-octicon octicon-book"></span>
+      </a>
+      <h4><a href="https://docs.github.com/pages">Guides</a></h4>
+      <p>Learn how to create custom 404 pages, use submodules, and <a href="https://docs.github.com/pages">learn more about GitHub Pages</a>.</p>
+    </li>
+  </ul>
+</section>
 
-  <!-- Founder -->
-  <section class="py-20 px-4 max-w-4xl mx-auto">
-    <div class="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 md:p-12 border border-slate-700 animate-fade-up">
-      <div class="flex flex-col md:flex-row gap-8 items-center">
-        <div class="w-24 h-24 rounded-full bg-slate-700 shrink-0 flex items-center justify-center text-2xl font-bold text-slate-400">AG</div>
-        <div>
-          <h3 class="text-2xl font-bold text-white mb-2">Meet the Founder</h3>
-          <p class="text-slate-300 mb-4 leading-relaxed">
-            Agentik AI was founded by a software engineer obsessed with data sovereignty. Based in Greensboro, NC, serving the Southeast. 
-            <br/><br/>
-            "We deploy private AI infrastructure on hardware you own. When you hire Agentik, you get the person who designs the architecture, configures the models, and picks up the phone."
-          </p>
-          <div class="flex flex-wrap gap-2">
-            <span class="px-3 py-1 bg-slate-700 text-xs rounded-full text-slate-300">No account managers</span>
-            <span class="px-3 py-1 bg-slate-700 text-xs rounded-full text-slate-300">U.S. built</span>
-            <span class="px-3 py-1 bg-slate-700 text-xs rounded-full text-slate-300">You own the data</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+<script src="/js/jquery.js"></script>
+<script>window.slides = {"bootstrap":"Bootstrap","yeoman":"Yeoman","facebookdesign":"Facebook Design","foundation":"Foundation","ghtraining":"GitHub Training","adobeos":"Adobe Open Source","jekyllrb":"Jekyll","electron":"Electron","semanticui":"Semantic UI","microsoft":"Microsoft on GitHub"}</script>
+<script src="/js/application.js"></script>
 
-  <!-- Footer -->
-  <footer class="bg-slate-950 border-t border-slate-800 py-12 px-4 text-center">
-    <div class="flex items-center justify-center gap-2 mb-6">
-      <i data-lucide="cpu" class="text-emerald-500 w-6 h-6"></i>
-      <span class="font-bold text-xl text-white">AGENTIK AI</span>
-    </div>
-    <p class="text-slate-500 text-sm mb-6">Serving NC Law Firms, Medical Practices, and Government Contractors.</p>
-    <div class="flex justify-center gap-6 text-sm text-slate-400 mb-8">
-      <a href="#" class="hover:text-white">Privacy</a>
-      <a href="#" class="hover:text-white">Terms</a>
-      <a href="#" class="hover:text-white">Contact</a>
-    </div>
-    <p class="text-slate-700 text-xs">© 2026 Agentik AI. All rights reserved.</p>
-  </footer>
 
-  <script>
-    // Initialize Lucide icons
-    lucide.createIcons();
-    // Show body after render to prevent FOUC
-    document.body.classList.add('loaded');
-    // Mobile menu toggle
-    document.getElementById('menu-btn').addEventListener('click', () => {
-      document.getElementById('mobile-menu').classList.toggle('hidden');
-    });
-  </script>
+<footer class="page-footer">
+  <ul class="site-footer-links right">
+    <li><a href="https://www.githubstatus.com/">Status</a></li>
+    <li><a href="https://docs.github.com/rest">API</a></li>
+    <li><a href="https://training.github.com">Training</a></li>
+    <li><a href="https://shop.github.com">Shop</a></li>
+    <li><a href="https://github.blog">Blog</a></li>
+    <li><a href="https://github.com/about">About</a></li>
+  </ul>
+
+  <a href="/">
+    <span class="mega-octicon octicon-mark-github"></span>
+  </a>
+
+  <ul class="site-footer-links">
+    <li>&copy; 2025 <span>GitHub</span>, Inc.</li>
+    <li><a href="https://docs.github.com/en/github/site-policy/github-terms-of-service">Terms</a></li>
+    <li><a href="https://docs.github.com/en/github/site-policy/github-privacy-statement">Privacy</a></li>
+    <li><a href="https://github.com/security">Security</a></li>
+    <li><a href="https://support.github.com">Contact</a></li>
+  </ul>
+</footer>
+
+<!-- CONSTELLATION25 // FACEPRINTPAY SOVEREIGN NODE INJECTION -->
+<section id="c25-node-runtime" style="background:#07080c;color:#e2e8f0;border-top:2px solid #00ffcc;padding:2.5rem 1.5rem;font-family:monospace;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <h2 style="color:#00ffcc;margin-top:0;">⚡ NODE ACTIVE: agentik-deploy</h2>
+    <p><strong>Ecosystem:</strong> Constellation25 // FacePrintPay &nbsp;|&nbsp; <strong>Architect:</strong> CyGeL White</p>
+    <p><strong>Repository Modules:</strong> <code>.gitignore README.md </code></p>
+  </div>
+</section>
 </body>
 </html>
+
